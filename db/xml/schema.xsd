@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="tables">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="words"/>
+                <xs:element ref="books"/>
+                <xs:element ref="groups"/>
+                <xs:element ref="phrases"/>
+             </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="words">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" minOccurs="0" ref="word"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="books">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" minOccurs="0" ref="book"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="book">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="title"/>
+                <xs:element ref="author"/>
+                <xs:element ref="path"/>
+                <xs:element ref="size"/>
+                <xs:element ref="date"/>
+                <xs:element ref="body"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="title" type="notEmptyStringType"/>
+    <xs:element name="author" type="notEmptyStringType"/>
+    <xs:element name="path" type="xs:anyURI"/>
+    <xs:element name="size" type="xs:integer"/>
+    <xs:element name="date" type="xs:date"/>
+    <xs:element name="body">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" minOccurs="0" ref="paragraph"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="paragraph">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" ref="sentence"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="sentence">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" ref="appr"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="groups">
+        <xs:complexType mixed="true">
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" minOccurs="0" ref="group"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="group">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="name"/>
+                <xs:element maxOccurs="unbounded" minOccurs="0" ref="wordref"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="name" type="notEmptyStringType"/>
+    <xs:element name="phrases">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" minOccurs="0" ref="phrase"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="phrase">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="text"/>
+                <xs:element maxOccurs="unbounded" minOccurs="2" ref="wordref"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="text" type="notEmptyStringType"/>
+    <xs:element name="wordref" type="xs:integer"/>
+    <xs:element name="word">
+        <xs:complexType>
+            <xs:simpleContent>
+                <xs:extension base="lowercaseWordType">
+                    <xs:attribute name="id" type="xs:integer"/>
+                </xs:extension>
+            </xs:simpleContent>
+        </xs:complexType>
+    </xs:element>
+    <xs:simpleType name="lowercaseWordType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[^A-Z\s]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:element name="appr">
+        <xs:complexType>
+            <xs:simpleContent>
+                <xs:extension base="offsetType">
+                    <xs:attribute name="refid" type="xs:integer"/>
+                </xs:extension>
+            </xs:simpleContent>
+        </xs:complexType>
+    </xs:element>
+    <xs:simpleType name="offsetType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[0-9]+:[0-9]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="notEmptyStringType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[^\s].*"/>
+            <xs:minLength value="1"/>
+            <xs:whiteSpace value="collapse"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>
