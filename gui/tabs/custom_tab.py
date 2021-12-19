@@ -1,7 +1,7 @@
 import PySimpleGUI as sg
 
 import gui.simple_gui_helper as sgh
-from db.books_db import BookDatabase
+from db.Documents_db import DocumentDatabase
 
 
 class CustomTab(sg.Tab):
@@ -11,7 +11,7 @@ class CustomTab(sg.Tab):
 
     def __init__(self, db, *args, **kwargs):
         super().__init__(element_justification=sgh.CENTER, *args, **kwargs)
-        self.db = db  # type: BookDatabase
+        self.db = db  # type: DocumentDatabase
 
     def initialize(self):
         """ Initialize the tab after it was first being drawn """

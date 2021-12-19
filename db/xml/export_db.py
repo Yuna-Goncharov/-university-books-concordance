@@ -5,7 +5,7 @@ This file handles the exporting process of the books database to an XML.
 from xml.dom import minidom
 from xml.etree.ElementTree import ElementTree, Element, Comment, SubElement, tostring
 
-from db.books_db import BookDatabase
+from db.Documents_db import DocumentDatabase
 from utils.constants import XML_DATE_FORMAT
 
 
@@ -19,7 +19,7 @@ def prettify(elem):
     return minidom.parseString(rough_string).toprettyxml(indent="  ")
 
 
-def export_words(db):  # type: (BookDatabase) -> Element
+def export_words(db):  # type: (DocumentDatabase) -> Element
     """ Create the words element, with all the words in the database """
     words = Element('words')
 
@@ -31,7 +31,7 @@ def export_words(db):  # type: (BookDatabase) -> Element
     return words
 
 
-def export_books(db):  # type: (BookDatabase) -> Element
+def export_books(db):  # type: (DocumentDatabase) -> Element
     """ Create the books element, with all the books in the database """
     books = Element('books')
 
@@ -70,7 +70,7 @@ def export_books(db):  # type: (BookDatabase) -> Element
     return books
 
 
-def export_groups(db):  # type: (BookDatabase) -> Element
+def export_groups(db):  # type: (DocumentDatabase) -> Element
     """ Create the groups element, with all the groups in the database """
     groups = Element('groups')
 
@@ -88,7 +88,7 @@ def export_groups(db):  # type: (BookDatabase) -> Element
     return groups
 
 
-def export_phrases(db):  # type: (BookDatabase) -> Element
+def export_phrases(db):  # type: (DocumentDatabase) -> Element
     """ Create the phrases element, with all the phrases in the database """
     phrases = Element('phrases')
 
@@ -106,7 +106,7 @@ def export_phrases(db):  # type: (BookDatabase) -> Element
     return phrases
 
 
-def build_xml(db):  # type: (BookDatabase) -> ElementTree
+def build_xml(db):  # type: (DocumentDatabase) -> ElementTree
     """
     Create an ElementTree representation of the given books database.
     :param db: The books database

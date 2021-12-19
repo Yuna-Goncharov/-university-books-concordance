@@ -8,7 +8,7 @@ from xml.etree.ElementTree import ElementTree, Element
 
 from lxml import etree
 
-from db.books_db import BookDatabase
+from db.Documents_db import DocumentDatabase
 from utils.constants import XML_DATE_FORMAT
 
 # The XSD schema describing a valid XML file
@@ -35,7 +35,7 @@ def parse_xml(xml_path):  # type: (str) -> ElementTree
     return etree.ElementTree(file=xml_path, parser=g_parser)
 
 
-def init_words(db, words_root):  # type: (BookDatabase, Element) -> None
+def init_words(db, words_root):  # type: (DocumentDatabase, Element) -> None
     """ Import all the words into the database """
     words = ((word.text, word.get("id")) for word in words_root)
 
@@ -43,7 +43,7 @@ def init_words(db, words_root):  # type: (BookDatabase, Element) -> None
     db.insert_many_words_with_id(words)
 
 
-def init_books(db, books_root):  # type: (BookDatabase, Element) -> None
+def init_books(db, books_root):  # type: (DocumentDatabase, Element) -> None
     """ Import all the books into the database """
 
     # Iterate over each book element
@@ -94,7 +94,7 @@ def init_books(db, books_root):  # type: (BookDatabase, Element) -> None
         db.insert_many_word_id_appearances(appearances)
 
 
-def init_groups(db, groups_root):  # type: (BookDatabase, Element) -> None
+def init_groups(db, groups_root):  # type: (DocumentDatabase, Element) -> None
     """ Import all the groups into the database """
 
     # Iterate over each group element
@@ -105,7 +105,7 @@ def init_groups(db, groups_root):  # type: (BookDatabase, Element) -> None
         db.insert_many_word_ids_to_group(group_id, (int(wordref.text) for wordref in group.iter("wordref")))
 
 
-def init_phrases(db, phrases_root):  # type: (BookDatabase, Element) -> None
+def init_phrases(db, phrases_root):  # type: (DocumentDatabase, Element) -> None
     """ Import all the phrases into the database """
 
     # Iterate over each phrase element
@@ -116,7 +116,7 @@ def init_phrases(db, phrases_root):  # type: (BookDatabase, Element) -> None
         db.insert_many_word_ids_to_phrase(phrase_id, (int(wordref.text) for wordref in phrase.iter("wordref")))
 
 
-def import_db(db, xml_path):  # type: (BookDatabase, str) -> None
+def import_db(db, xml_path):  # type: (DocumentDatabase, str) -> None
     """
     Import a given XML file into the db.
     :param db: The database to import into

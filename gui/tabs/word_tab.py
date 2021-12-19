@@ -4,7 +4,7 @@ from threading import Timer
 import PySimpleGUI as sg
 
 import gui.simple_gui_helper as sgh
-from db.books_db import BookDatabase
+from db.Documents_db import DocumentDatabase
 from gui.book_context_manager import BookPreview
 from gui.tabs.custom_tab import CustomTab
 
@@ -16,9 +16,9 @@ class WordTab(CustomTab):
 
     # Maps the sort option name to the SQL ORDER BY string
     WORDS_SORT_OPTIONS = {
-        "Alphabet": BookDatabase.ALPHABET_ORDER,
-        "Appearances": BookDatabase.APPEARANCES_ORDER,
-        "Length": BookDatabase.LENGTH_ORDER
+        "Alphabet": DocumentDatabase.ALPHABET_ORDER,
+        "Appearances": DocumentDatabase.APPEARANCES_ORDER,
+        "Length": DocumentDatabase.LENGTH_ORDER
     }
 
     # Maps the sort direction option name to the SQL direction name

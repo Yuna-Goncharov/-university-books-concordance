@@ -13,7 +13,7 @@ from utils.constants import DATE_FORMAT
 from utils.utils import file_size_to_str
 
 
-class BookTab(CustomTab):
+class DocumentTab(CustomTab):
     """
     Preview inserted books and insert new books.
     """
@@ -21,60 +21,60 @@ class BookTab(CustomTab):
     # Event keys
     class EventKeys(Enum):
         FILE_INPUT = auto()
-        INSERT_BOOK = auto()
+        INSERT_DOCUMENT = auto()
         UPDATE_FILTER = auto()
-        BOOKS_TABLE = auto()
-        OPEN_BOOK = auto()
+        DOCUMENTS_TABLE = auto()
+        OPEN_DOCUMENT = auto()
 
     def __init__(self, db):
-        super().__init__(db, "Insert Book", [[]])
+        super().__init__(db, "Insert Ducoment", [[]])
         self.db.add_book_insert_callback(self._update_books_table)
 
         self.filters = {}  # The book list dynamic filters
         self.selected_book_id = None
 
         self.layout([
-            [sg.Text("Insert New Book", font=sgh.HUGE_FONT_SIZE)],
-            [self._create_book_form_frame()],
+            [sg.Text("Insert New Docuement", font=sgh.HUGE_FONT_SIZE)],
+            [self._create_document_form_frame()],
             [sg.Sizer(v_pixels=30)],
             [sg.Text("Inserted Books", font=sgh.HUGE_FONT_SIZE)],
             [self._create_books_explorer_frame()]
         ])
 
-    def _create_book_form_frame(self):
-        self.file_input = sg.InputText(enable_events=True, key=BookTab.EventKeys.FILE_INPUT)
+    def _create_document_form_frame(self):
+        self.file_input = sg.InputText(enable_events=True, key=DocumentTab.EventKeys.FILE_INPUT)
         browse_button = sg.FileBrowse(file_types=(("Text files", "*.txt"), ("All Files", "*")))
-        self.title_input = sg.InputText()
+        self.name_input = sg.InputText()
         self.author_input = sg.InputText()
         self.date_input = sg.InputText()
         select_date_button = sg.CalendarButton('Select', target=(sg.ThisRow, -1), format=DATE_FORMAT)
 
         self.file_size_text = sg.Text("File size: None", auto_size_text=False)
 
-        insert_book_button = sg.Ok("Insert Book", key=BookTab.EventKeys.INSERT_BOOK, size=(20, 0))
+        insert_document_button = sg.Ok("Insert Document", key=DocumentTab.EventKeys.INSERT_DOCUMENT, size=(20, 0))
         self.error_text = sg.Text("", text_color=sgh.ERROR_TEXT_COLOR, auto_size_text=False)
 
         frame = sg.Frame(
             title="",
             layout=[
-                [sg.Text("Path:", size=(5, 1)), self.file_input, browse_button],
-                [sg.Text("Title:", size=(5, 1)), self.title_input],
-                [sg.Text("Author:", size=(5, 1)), self.author_input],
-                [sg.Text("Date:", size=(5, 1)), self.date_input, select_date_button],
+                [sg.Text("Doc Path:", size=(8, 1)), self.file_input, browse_button],
+                [sg.Text("Name:", size=(8, 1)), self.name_input],
+                [sg.Text("Author:", size=(8, 1)), self.author_input],
+                [sg.Text("Date:", size=(8, 1)), self.date_input, select_date_button],
                 [self.file_size_text],
-                [insert_book_button, self.error_text],
+                [insert_document_button, self.error_text],
             ]
         )
 
         return frame
 
-    def _create_books_filter_row(self):
+    def _create_documents_filter_row(self):
         def _create_filter_input():
             return sg.InputText(
                 default_text="",
                 size=(20, 1),
                 enable_events=True,
-                key=BookTab.EventKeys.UPDATE_FILTER
+                key=DocumentTab.EventKeys.UPDATE_FILTER
             )
 
         row = []
@@ -96,16 +96,16 @@ class BookTab(CustomTab):
             auto_size_columns=False,
             enable_events=True,
             visible_column_map=[False, True, True, True, True, True],
-            key=BookTab.EventKeys.BOOKS_TABLE
+            key=DocumentTab.EventKeys.DOCUMENTS_TABLE
         )
 
-        open_book_button = sg.Button("Open Selected Book", key=BookTab.EventKeys.OPEN_BOOK)
+        open_book_button = sg.Button("Open Selected Book", key=DocumentTab.EventKeys.OPEN_DOCUMENT)
 
         frame = sg.Frame(
             title="",
             layout=[
                 [sg.Sizer(v_pixels=20)],
-                self._create_books_filter_row(),
+                self._create_documents_filter_row(),
                 [sg.Sizer(v_pixels=10)],
                 [self.books_table],
                 [sg.Sizer(v_pixels=70, h_pixels=1000), open_book_button],
@@ -131,11 +131,11 @@ class BookTab(CustomTab):
     @property
     def callbacks(self):
         return {
-            BookTab.EventKeys.FILE_INPUT: self._load_file_input,
-            BookTab.EventKeys.INSERT_BOOK: self._insert_book,
-            BookTab.EventKeys.UPDATE_FILTER: self._update_books_filter,
-            BookTab.EventKeys.BOOKS_TABLE: self._select_book,
-            BookTab.EventKeys.OPEN_BOOK: self._open_book_file
+            DocumentTab.EventKeys.FILE_INPUT: self._load_file_input,
+            DocumentTab.EventKeys.INSERT_DOCUMENT: self._insert_book,
+            DocumentTab.EventKeys.UPDATE_FILTER: self._update_books_filter,
+            DocumentTab.EventKeys.DOCUMENTS_TABLE: self._select_book,
+            DocumentTab.EventKeys.OPEN_DOCUMENT: self._open_book_file
         }
 
     def _load_file_input(self):
@@ -162,7 +162,7 @@ class BookTab(CustomTab):
         if date:
             self.date_input.update(datetime.fromtimestamp(date).strftime(DATE_FORMAT))
 
-        self.title_input.update(book_name)
+        self.name_input.update(book_name)
         self.author_input.update(author)
         self.file_size_text.update(f"File size: {size_str}")
         self.error_text.update("")
@@ -170,7 +170,7 @@ class BookTab(CustomTab):
     def _clear_book_insert_frame(self):
         """ Clear the insertion frame inputs """
         self.file_input.update("")
-        self.title_input.update("")
+        self.name_input.update("")
         self.author_input.update("")
         self.date_input.update("")
         self.file_size_text.update("File size: None")
@@ -181,7 +181,7 @@ class BookTab(CustomTab):
         error_msg = ""
         try:
             date = datetime.strptime(self.date_input.get(), DATE_FORMAT)
-            self.db.add_book(self.title_input.get(),
+            self.db.add_book(self.name_input.get(),
                              self.author_input.get(),
                              self.file_input.get(),
                              date)

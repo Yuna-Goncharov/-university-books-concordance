@@ -1,4 +1,4 @@
-from gui.books_ui import BooksUi
+from gui.books_ui import DocumentsUi
 
 if __name__ == '__main__':
-    BooksUi().start()
+    DocumentsUi().start()

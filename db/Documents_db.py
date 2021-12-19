@@ -10,7 +10,7 @@ from utils.book_parser import parse_book
 from utils.constants import VALID_WORD_REGEX, DATE_FORMAT
 
 
-class BookDatabase(Database):
+class DocumentDatabase(Database):
     """
     Books database manager class.
     It is the python interface to perform actions on the books database.
@@ -45,7 +45,7 @@ class BookDatabase(Database):
 
     def _initialize_schema(self):
         """ Initialize the db with the books schema. """
-        self._run_sql_script(BookDatabase.SCRIPTS.INITIALIZE_SCHEMA, multiple_statements=True)
+        self._run_sql_script(DocumentDatabase.SCRIPTS.INITIALIZE_SCHEMA, multiple_statements=True)
 
     def new_connection(self, always_create=False, new_path=None, commit=True):
         if not super().new_connection(always_create, new_path, commit):
@@ -97,12 +97,12 @@ class BookDatabase(Database):
         :return: The string as a string word
         """
         single_word = word.lower().strip()
-        BookDatabase.assert_valid_word(single_word)
+        DocumentDatabase.assert_valid_word(single_word)
         return single_word
 
     @staticmethod
     def assert_valid_title(words):
-        valid = re.fullmatch(BookDatabase.VALID_MULTIPLE_WORDS, words) and \
+        valid = re.fullmatch(DocumentDatabase.VALID_MULTIPLE_WORDS, words) and \
                 words == words.title()
 
         if not valid:
@@ -117,7 +117,7 @@ class BookDatabase(Database):
         :return: The string as a title
         """
         title = words.title().strip()
-        BookDatabase.assert_valid_title(title)
+        DocumentDatabase.assert_valid_title(title)
         return title
 
     #
@@ -204,7 +204,7 @@ class BookDatabase(Database):
         :return: The group id of the newly inserted group
         """
         name = self.to_title(name)
-        if name in BookDatabase.INVALID_GROUP_NAMES:
+        if name in DocumentDatabase.INVALID_GROUP_NAMES:
             raise CheckError
 
         group_id = self.execute(queries.INSERT_WORDS_GROUP, (name,)).lastrowid
@@ -477,4 +477,4 @@ class BookDatabase(Database):
         :param phrase_id: The phrase id of the phrase
         :return: The list of appearances as (book_id, sentence, start_index, end_index) tuples.
         """
-        return self._run_sql_script(BookDatabase.SCRIPTS.SEARCH_PHRASE, (phrase_id,)).fetchall()
+        return self._run_sql_script(DocumentDatabase.SCRIPTS.SEARCH_PHRASE, (phrase_id,)).fetchall()
