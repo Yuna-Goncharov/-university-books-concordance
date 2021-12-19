@@ -1,10 +1,10 @@
 from tkinter.scrolledtext import ScrolledText
 
-from gui import simple_gui_helper as sgh
+from UI import UI_defaults as sgh
 from utils.utils import cached_read
 
 
-class BookPreview:
+class DocumentPreview:
     """
     Handles the book preview elements
     """

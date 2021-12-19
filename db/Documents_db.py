@@ -57,7 +57,7 @@ class DocumentDatabase(Database):
     # Callbacks Functions
     #
 
-    def add_book_insert_callback(self, callback):
+    def add_document_insert_callback(self, callback):
         self.book_insert_callbacks.append(callback)
 
     def add_group_insert_callback(self, callback):
@@ -401,7 +401,7 @@ class DocumentDatabase(Database):
         """
         return self.execute(queries.ALL_WORDS).fetchall()
 
-    def all_books(self, date_format=DATE_FORMAT):
+    def all_documents(self, date_format=DATE_FORMAT):
         """
         Get a list of all the inserted books.
         :param date_format: The date format to use for the book date

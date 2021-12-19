@@ -4,18 +4,18 @@ from sqlite3 import OperationalError
 
 import PySimpleGUI as sg
 
-import gui.simple_gui_helper as sgh
+import UI.UI_defaults as sgh
 from db.Documents_db import DocumentDatabase
 from db.exceptions import IntegrityError
 from db.xml.export_db import export_db
 from db.xml.import_db import import_db
-from gui.simple_gui_helper import WINDOW_SIZE
-from gui.tabs.document_tab import DocumentTab
-from gui.tabs.custom_tab import CustomTab
-from gui.tabs.group_tab import GroupTab
-from gui.tabs.phrase_tab import PhraseTab
-from gui.tabs.statistics_tab import StatisticsTab
-from gui.tabs.word_tab import WordTab
+from UI.UI_defaults import WINDOW_SIZE
+from UI.headers.document_header import DocumentHeader
+from UI.headers.custom_header import CustomHeader
+from UI.headers.group_header import GroupHeader
+from UI.headers.phrase_header import PhraseHeader
+from UI.headers.statistics_header import StatisticsHeader
+from UI.headers.word_header import WordHeader
 
 
 class DocumentsUi:
@@ -38,8 +38,8 @@ class DocumentsUi:
 
     LOADING_SUCCESS = "Successfully loaded from file."
 
-    # The tabs
-    TAB_CLASSES = DocumentTab, WordTab, GroupTab, PhraseTab, StatisticsTab
+    # The headers
+    TAB_CLASSES = DocumentHeader, WordHeader, GroupHeader, PhraseHeader, StatisticsHeader
 
     # Event keys
     class KEYS(Enum):
@@ -56,7 +56,7 @@ class DocumentsUi:
         # Create the database
         self.db = DocumentDatabase()
 
-        # Create the window and the tabs
+        # Create the window and the headers
         self.window = sg.Window(sgh.WINDOW_TITLE, size=WINDOW_SIZE, finalize=True)
         self.tabs = sg.TabGroup([self.create_tabs()], key=DocumentsUi.KEYS.TABS, enable_events=True)
         self.window.layout([
@@ -99,7 +99,7 @@ class DocumentsUi:
         return [upload_button, save_button, import_button, export_button]
 
     def _reload_tabs(self):
-        """ Reload all the tabs with the content from the database """
+        """ Reload all the headers with the content from the database """
         try:
             for row in self.tabs.Rows:
                 for tab in row:
@@ -183,18 +183,18 @@ class DocumentsUi:
                     self.reset_database(ask_for_confirmation=False)
 
     def create_tabs(self):
-        """ Create all the tabs """
+        """ Create all the headers """
         return [tab_class(self.db) for tab_class in DocumentsUi.TAB_CLASSES]
 
     def initialize_tabs(self):
-        """ Initialize all the tabs """
+        """ Initialize all the headers """
         for row in self.tabs.Rows:
             for tab in row:
                 tab.initialize()
 
     def handle_enter(self, _key_event):
         """ Handle the press of the enter key """
-        curr_tab = self.window.Element(self.tabs.get())  # type: CustomTab
+        curr_tab = self.window.Element(self.tabs.get())  # type: CustomHeader
         curr_tab.handle_enter(self.window.find_element_with_focus())
 
     def debug_init_db(self):
@@ -224,7 +224,7 @@ class DocumentsUi:
                 self.callbacks[event]()
             else:
                 # Forward the event to the current selected tab
-                curr_tab = self.window.Element(self.tabs.get())  # type: CustomTab
+                curr_tab = self.window.Element(self.tabs.get())  # type: CustomHeader
                 curr_tab.handle_event(event)
 
         # Commit the database and close the window

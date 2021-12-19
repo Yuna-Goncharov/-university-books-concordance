@@ -3,14 +3,14 @@ from enum import Enum, auto
 import PySimpleGUI as sg
 
 import db.sql_queries as queries
-import gui.simple_gui_helper as sgh
-from gui.tabs.custom_tab import CustomTab
+import UI.UI_defaults as sgh
+from UI.headers.custom_header import CustomHeader
 from utils.utils import float_to_str, file_size_to_str
 
 ALL_BOOKS_FILTER = "> 0"
 
 
-class StatisticsTab(CustomTab):
+class StatisticsHeader(CustomHeader):
     """
     Calculate statistical information about the inserted data.
     """
@@ -45,8 +45,8 @@ class StatisticsTab(CustomTab):
         SELECT_BOOK = auto()
 
     def __init__(self, db):
-        super().__init__(db, "Statistics", [[]])
-        self.db.add_book_insert_callback(self._update_book_dropdown)
+        super().__init__(db, "Statistics Browser", [[]])
+        self.db.add_document_insert_callback(self._update_book_dropdown)
         self.db.add_group_insert_callback(self._refresh_general_statistics)
         self.db.add_group_word_insert_callback(self._refresh_general_statistics)
         self.db.add_phrase_insert_callback(self._refresh_general_statistics)
@@ -73,7 +73,7 @@ class StatisticsTab(CustomTab):
         self.general_statistics = []
 
         statistic_lines = []
-        for title, query in StatisticsTab.GENERAL_STATISTICS:
+        for title, query in StatisticsHeader.GENERAL_STATISTICS:
             title, result_text = self._create_elements(self.general_statistics, title, query, sgh.BIG_FONT_SIZE)
             statistic_lines.append([title, result_text])
 
@@ -99,12 +99,12 @@ class StatisticsTab(CustomTab):
             text_color=sgh.DROP_DOWN_TEXT_COLOR,
             background_color=sgh.NO_BG,
             enable_events=True,
-            key=StatisticsTab.EventKeys.SELECT_BOOK
+            key=StatisticsHeader.EventKeys.SELECT_BOOK
         )
 
         self.specific_statistics = []
         first_rows = []
-        for rows_counter, (title, query) in enumerate(StatisticsTab.SPECIFIC_STATISTICS):
+        for rows_counter, (title, query) in enumerate(StatisticsHeader.SPECIFIC_STATISTICS):
             title_text, result_text = self._create_elements(self.specific_statistics, title, query, sgh.BIG_FONT_SIZE)
 
             first_rows.append([title_text, result_text])
@@ -114,7 +114,7 @@ class StatisticsTab(CustomTab):
         second_cols = []
         for column in "paragraph", "line", "sentence":
             col_rows = []
-            for title, query in StatisticsTab.SPECIFIC_STATISTICS_TEMPLATE:
+            for title, query in StatisticsHeader.SPECIFIC_STATISTICS_TEMPLATE:
                 title_text, result_text = self._create_elements(self.specific_statistics,
                                                                 title.format(count_column=column.title()),
                                                                 query.format(count_column=column))
@@ -150,12 +150,12 @@ class StatisticsTab(CustomTab):
     @property
     def callbacks(self):
         return {
-            StatisticsTab.EventKeys.SELECT_BOOK: self._select_book,
+            StatisticsHeader.EventKeys.SELECT_BOOK: self._select_book,
         }
 
     def _update_book_dropdown(self):
         """ Update the list of available books """
-        books = self.db.all_books()
+        books = self.db.all_documents()
         self.book_names_to_id = {f'{book[1]} by {book[2]}': book[0] for book in books}
 
         book_options = ["All"] + list(self.book_names_to_id.keys())

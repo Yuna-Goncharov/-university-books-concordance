@@ -36,7 +36,7 @@ def export_books(db):  # type: (DocumentDatabase) -> Element
     books = Element('books')
 
     # Iterate over all the books
-    for book_id, title, author, path, size, date in db.all_books(date_format=XML_DATE_FORMAT):
+    for book_id, title, author, path, size, date in db.all_documents(date_format=XML_DATE_FORMAT):
         # Crete a book element
         book = SubElement(books, "book")
         SubElement(book, "title").text = title

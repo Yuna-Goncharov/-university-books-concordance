@@ -2,13 +2,13 @@ from enum import Enum, auto
 
 import PySimpleGUI as sg
 
-import gui.simple_gui_helper as sgh
+import UI.UI_defaults as sgh
 from db.exceptions import CheckError
-from gui.book_context_manager import BookPreview
-from gui.tabs.custom_tab import CustomTab
+from UI.book_context_manager import DocumentPreview
+from UI.headers.custom_header import CustomHeader
 
 
-class PhraseTab(CustomTab):
+class PhraseHeader(CustomHeader):
     """
     Create new phrases and search for their appearances.
     """
@@ -21,8 +21,8 @@ class PhraseTab(CustomTab):
         PHRASE_APPR_TABLE = auto()
 
     def __init__(self, db):
-        super().__init__(db, "Search Phrases", [[]])
-        self.db.add_book_insert_callback(self._search_phrase)
+        super().__init__(db, "Phrases Browser", [[]])
+        self.db.add_document_insert_callback(self._search_phrase)
 
         self.phrases = {}
         self.selected_phrase_id = None
@@ -50,9 +50,9 @@ class PhraseTab(CustomTab):
             font=sgh.BIG_FONT_SIZE,
             text_color=sgh.INPUT_COLOR,
             enable_events=True,
-            key=PhraseTab.EventKeys.PHRASE_INPUT
+            key=PhraseHeader.EventKeys.PHRASE_INPUT
         )
-        add_phrase_button = sg.Ok("Insert", pad=(20, 1), size=(10, 1), key=PhraseTab.EventKeys.ADD_PHRASE)
+        add_phrase_button = sg.Ok("Insert", pad=(20, 1), size=(10, 1), key=PhraseHeader.EventKeys.ADD_PHRASE)
 
         search_phrase_txt = sg.Text(
             text="Phrase to be searched:",
@@ -69,7 +69,7 @@ class PhraseTab(CustomTab):
             text_color=sgh.DROP_DOWN_TEXT_COLOR,
             background_color=sgh.NO_BG,
             enable_events=True,
-            key=PhraseTab.EventKeys.PHRASE_SELECTION
+            key=PhraseHeader.EventKeys.PHRASE_SELECTION
         )
 
         self.phrase_input_error = sg.Text(
@@ -120,7 +120,7 @@ class PhraseTab(CustomTab):
             enable_events=True,
             select_mode=sg.SELECT_MODE_BROWSE,
             visible_column_map=[is_visible for _col_name, is_visible in headers],
-            key=PhraseTab.EventKeys.PHRASE_APPR_TABLE
+            key=PhraseHeader.EventKeys.PHRASE_APPR_TABLE
         )
 
         book_title = sg.Text(
@@ -138,7 +138,7 @@ class PhraseTab(CustomTab):
             disabled=True
         )
 
-        self.book_preview = BookPreview(self.db, book_context_multiline, book_title)
+        self.book_preview = DocumentPreview(self.db, book_context_multiline, book_title)
 
         col = sg.Column(
             layout=[
@@ -165,10 +165,10 @@ class PhraseTab(CustomTab):
     @property
     def callbacks(self):
         return {
-            PhraseTab.EventKeys.PHRASE_INPUT: self._clear_phrase_error,
-            PhraseTab.EventKeys.ADD_PHRASE: self._add_phrase,
-            PhraseTab.EventKeys.PHRASE_SELECTION: self._search_phrase,
-            PhraseTab.EventKeys.PHRASE_APPR_TABLE: self._select_phrase_appr
+            PhraseHeader.EventKeys.PHRASE_INPUT: self._clear_phrase_error,
+            PhraseHeader.EventKeys.ADD_PHRASE: self._add_phrase,
+            PhraseHeader.EventKeys.PHRASE_SELECTION: self._search_phrase,
+            PhraseHeader.EventKeys.PHRASE_APPR_TABLE: self._select_phrase_appr
         }
 
     def handle_enter(self, focused_element):

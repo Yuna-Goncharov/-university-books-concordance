@@ -2,14 +2,14 @@ from enum import Enum, auto
 
 import PySimpleGUI as sg
 
-import gui.simple_gui_helper as sgh
+import UI.UI_defaults as sgh
 from db.exceptions import NonUniqueError, CheckError
-from gui.tabs.custom_tab import CustomTab
+from UI.headers.custom_header import CustomHeader
 
 INVALID_GROUP_NAMES = ["none", "all"]
 
 
-class GroupTab(CustomTab):
+class GroupHeader(CustomHeader):
     """
     Insert new groups, and fill them with words.
     """
@@ -23,7 +23,7 @@ class GroupTab(CustomTab):
         WORDS_LIST = auto()
 
     def __init__(self, db):
-        super().__init__(db, "Word Groups", [[]])
+        super().__init__(db, "Word Groups Pairs Browser", [[]])
 
         # Add callbacks
         self.db.add_group_insert_callback(self._update_groups_list)
@@ -42,11 +42,11 @@ class GroupTab(CustomTab):
             font=sgh.MEDIUM_FONT_SIZE,
             enable_events=True,
             text_color=sgh.INPUT_COLOR,
-            key=GroupTab.EventKeys.GROUP_INPUT
+            key=GroupHeader.EventKeys.GROUP_INPUT
         )
         insert_group_button = sg.Ok(
             button_text="Insert Group",
-            key=GroupTab.EventKeys.INSERT_GROUP, size=(10, 1)
+            key=GroupHeader.EventKeys.INSERT_GROUP, size=(10, 1)
         )
 
         create_group_title = sg.Text(
@@ -68,7 +68,7 @@ class GroupTab(CustomTab):
             pad=(0, (0, 30)),
             select_mode=sg.SELECT_MODE_SINGLE,
             enable_events=True,
-            key=GroupTab.EventKeys.GROUPS_LIST
+            key=GroupHeader.EventKeys.GROUPS_LIST
         )
 
         col = sg.Column(
@@ -89,12 +89,12 @@ class GroupTab(CustomTab):
             font=sgh.MEDIUM_FONT_SIZE,
             enable_events=True,
             text_color=sgh.INPUT_COLOR,
-            key=GroupTab.EventKeys.WORD_INPUT
+            key=GroupHeader.EventKeys.WORD_INPUT
         )
 
         insert_word_button = sg.Ok(
             button_text="Insert Word",
-            key=GroupTab.EventKeys.INSERT_WORD,
+            key=GroupHeader.EventKeys.INSERT_WORD,
             size=(10, 1)
         )
 
@@ -119,7 +119,7 @@ class GroupTab(CustomTab):
             pad=(0, (0, 30)),
             select_mode=sg.SELECT_MODE_SINGLE,
             enable_events=True,
-            key=GroupTab.EventKeys.WORDS_LIST
+            key=GroupHeader.EventKeys.WORDS_LIST
         )
 
         col = sg.Column(
@@ -149,11 +149,11 @@ class GroupTab(CustomTab):
     @property
     def callbacks(self):
         return {
-            GroupTab.EventKeys.GROUP_INPUT: self._clear_group_error,
-            GroupTab.EventKeys.WORD_INPUT: self._clear_word_error,
-            GroupTab.EventKeys.INSERT_GROUP: self._insert_group,
-            GroupTab.EventKeys.GROUPS_LIST: self._select_group,
-            GroupTab.EventKeys.INSERT_WORD: self._insert_word
+            GroupHeader.EventKeys.GROUP_INPUT: self._clear_group_error,
+            GroupHeader.EventKeys.WORD_INPUT: self._clear_word_error,
+            GroupHeader.EventKeys.INSERT_GROUP: self._insert_group,
+            GroupHeader.EventKeys.GROUPS_LIST: self._select_group,
+            GroupHeader.EventKeys.INSERT_WORD: self._insert_word
         }
 
     def handle_enter(self, focused_element):
