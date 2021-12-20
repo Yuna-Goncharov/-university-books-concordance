@@ -409,7 +409,7 @@ class DocumentDatabase(Database):
         """
         return self.execute(queries.ALL_BOOKS, (date_format,)).fetchall()
 
-    def get_book_title(self, book_id):
+    def get_document_title(self, book_id):
         """
         Get the title of a book.
         :param book_id: The book id of the book

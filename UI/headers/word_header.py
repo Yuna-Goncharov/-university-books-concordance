@@ -487,7 +487,7 @@ class WordHeader(CustomHeader):
                 **self.word_appearance_filters)
 
             self.word_appr_table.update(
-                values=[(self.db.get_book_title(appr[0])[0],) + appr for appr in appearances]
+                values=[(self.db.get_document_title(appr[0])[0],) + appr for appr in appearances]
             )
         else:
             self.word_appr_table.update(values=[])

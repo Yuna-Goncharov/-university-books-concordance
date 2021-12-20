@@ -216,7 +216,7 @@ class PhraseHeader(CustomHeader):
                 start_line, start_line_offset = self.db.word_location_to_offset(book_id, sentence, start_index)
                 end_line, end_line_offset = self.db.word_location_to_offset(book_id, sentence, end_index, True)
 
-                phrases_appr_table_values.append((book_id, self.db.get_book_title(book_id)[0],
+                phrases_appr_table_values.append((book_id, self.db.get_document_title(book_id)[0],
                                                   sentence,
                                                   start_index, start_line, start_line_offset,
                                                   end_index, end_line, end_line_offset))

@@ -32,7 +32,7 @@ class DocumentHeader(CustomHeader):
         self.layout([
             [sg.Text("Insert New Document", font=sgh.HUGE_FONT_SIZE)],
             [self._create_document_form_frame()],
-            [sg.Sizer(v_pixels=30)],
+            [sg.Sizer(v_pixels=20)],
             [sg.Text("Inserted Documents", font=sgh.HUGE_FONT_SIZE)],
             [self._create_documents_explorer_frame()]
         ])

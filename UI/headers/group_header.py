@@ -10,10 +10,6 @@ INVALID_GROUP_NAMES = ["none", "all"]
 
 
 class GroupHeader(CustomHeader):
-    """
-    Insert new groups, and fill them with words.
-    """
-
     class EventKeys(Enum):
         GROUP_INPUT = auto()
         WORD_INPUT = auto()
