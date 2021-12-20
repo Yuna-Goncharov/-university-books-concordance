@@ -39,7 +39,7 @@ class DocumentsUi:
     LOADING_SUCCESS = "Successfully loaded from file."
 
     # The headers
-    TAB_CLASSES = DocumentHeader, WordHeader, GroupHeader, PhraseHeader, StatisticsHeader
+    TAB_CLASSES = StatisticsHeader, DocumentHeader, WordHeader, GroupHeader, PhraseHeader
 
     # Event keys
     class KEYS(Enum):
@@ -198,13 +198,8 @@ class DocumentsUi:
         curr_tab.handle_enter(self.window.find_element_with_focus())
 
     def debug_init_db(self):
-        # self.db.add_document("Book",
-        #                  "Unknown",
-        #                  r"C:\Users\Lotem\Desktop\sql\ideas.txt",
-        #                  datetime.now())
-
-        self.db.insert_words_group("Animals")
-        self.db.insert_words_group("Weird Words")
+        self.db.insert_words_group("Test")
+        self.db.insert_words_group("Test Words")
 
     def start(self):
         """

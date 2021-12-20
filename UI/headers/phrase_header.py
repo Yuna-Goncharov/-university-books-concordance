@@ -9,10 +9,6 @@ from UI.headers.custom_header import CustomHeader
 
 
 class PhraseHeader(CustomHeader):
-    """
-    Create new phrases and search for their appearances.
-    """
-
     # Event keys
     class EventKeys(Enum):
         PHRASE_INPUT = auto()
@@ -98,8 +94,8 @@ class PhraseHeader(CustomHeader):
 
         # header_name, is_visible
         headers = [
-            ("Book Id", False),
-            ("Book", True),
+            ("Document Id", False),
+            ("Document", True),
             ("Sentence", True),
             ("Start Sentence Index", True),
             ("Start Line", False),
@@ -123,14 +119,14 @@ class PhraseHeader(CustomHeader):
             key=PhraseHeader.EventKeys.PHRASE_APPR_TABLE
         )
 
-        book_title = sg.Text(
+        document_title = sg.Text(
             text="",
             font=sgh.TITLE_FONT_SIZE,
             justification=sg.TEXT_LOCATION_CENTER,
             auto_size_text=False,
         )
 
-        book_context_multiline = sg.Multiline(
+        document_context_multiline = sg.Multiline(
             default_text="",
             size=(110, 25),
             text_color=sgh.MULTILINE_TEXT_COLOR,
@@ -138,14 +134,14 @@ class PhraseHeader(CustomHeader):
             disabled=True
         )
 
-        self.book_preview = DocumentPreview(self.db, book_context_multiline, book_title)
+        self.document_preview = DocumentPreview(self.db, document_context_multiline, document_title)
 
         col = sg.Column(
             layout=[
                 [self.appearances_count_text],
                 [self.phrase_appr_table],
-                [book_title],
-                [book_context_multiline]
+                [document_title],
+                [document_context_multiline]
             ],
             element_justification=sgh.CENTER
         )
@@ -153,13 +149,13 @@ class PhraseHeader(CustomHeader):
         return col
 
     def initialize(self):
-        self.book_preview.initialize()
+        self.document_preview.initialize()
         self.reload()
 
     def reload(self):
         self.phrases = dict(self.db.all_phrases())
         self.phrase_input.update("")
-        self.book_preview.hide_preview()
+        self.document_preview.hide_preview()
         self._update_phrase_dropdown()
 
     @property
@@ -212,11 +208,11 @@ class PhraseHeader(CustomHeader):
 
             # Iterate over the found phrases and convert them to the wanted table columns
             phrases_appr_table_values = []
-            for book_id, sentence, start_index, end_index in appearances:
-                start_line, start_line_offset = self.db.word_location_to_offset(book_id, sentence, start_index)
-                end_line, end_line_offset = self.db.word_location_to_offset(book_id, sentence, end_index, True)
+            for document_id, sentence, start_index, end_index in appearances:
+                start_line, start_line_offset = self.db.word_location_to_offset(document_id, sentence, start_index)
+                end_line, end_line_offset = self.db.word_location_to_offset(document_id, sentence, end_index, True)
 
-                phrases_appr_table_values.append((book_id, self.db.get_document_title(book_id)[0],
+                phrases_appr_table_values.append((document_id, self.db.get_document_title(document_id)[0],
                                                   sentence,
                                                   start_index, start_line, start_line_offset,
                                                   end_index, end_line, end_line_offset))
@@ -235,17 +231,16 @@ class PhraseHeader(CustomHeader):
             self.phrase_appr_table.SelectedRows = [0]  # This updates PySimpleGUI's rows logic
             self._select_phrase_appr()
         else:
-            self.book_preview.hide_preview()
+            self.document_preview.hide_preview()
 
     def _select_phrase_appr(self):
-        """ Select appearance of the phrase to be previewed """
         if self.phrase_appr_table.SelectedRows:
             selected_word_appr_row = self.phrase_appr_table.SelectedRows[0]
             if selected_word_appr_row < len(self.phrase_appr_table.Values):
                 if self.phrase_appr_table.Values[selected_word_appr_row]:
-                    (book_id, book_title,
+                    (document_id, document_title,
                      sentence,
                      start_index, start_line, start_line_offset,
                      end_index, end_line, end_line_offset) = self.phrase_appr_table.Values[selected_word_appr_row]
 
-                    self.book_preview.set_preview(book_id, start_line, start_line_offset, end_line_offset, end_line)
+                    self.document_preview.set_preview(document_id, start_line, start_line_offset, end_line_offset, end_line)

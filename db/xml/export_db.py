@@ -114,7 +114,7 @@ def build_xml(db):  # type: (DocumentDatabase) -> ElementTree
     """
     root = Element('tables')
 
-    comment = Comment('Books Database by Lotem Ben Yaakov')
+    comment = Comment('Document Database')
     root.append(comment)
 
     root.append(export_words(db))
