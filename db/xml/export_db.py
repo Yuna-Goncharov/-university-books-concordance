@@ -51,7 +51,7 @@ def export_books(db):  # type: (DocumentDatabase) -> Element
         curr_paragraph_element = None
         curr_sentence = None
         curr_sentence_element = None
-        for word_appr in db.all_book_words(book_id):
+        for word_appr in db.all_document_words(book_id):
             word_id, paragraph, sentence, line, line_offset = word_appr
 
             # Create a new paragraph

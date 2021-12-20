@@ -54,7 +54,7 @@ def init_books(db, books_root):  # type: (DocumentDatabase, Element) -> None
         path = book.find("path").text
         size = int(book.find("size").text)
         date = datetime.strptime(book.find("date").text, XML_DATE_FORMAT)
-        book_id = db.insert_book(title, author, path, size, date)
+        book_id = db.insert_document(title, author, path, size, date)
 
         # Collect all the word appearances to be inserted
         appearances = []

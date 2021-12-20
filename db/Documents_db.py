@@ -6,7 +6,7 @@ import db.sql_queries as queries
 from db.db_manager import Database
 from db.exceptions import CheckError
 from db.query_builder import build_query
-from utils.book_parser import parse_book
+from utils.book_parser import parse_document
 from utils.constants import VALID_WORD_REGEX, DATE_FORMAT
 
 
@@ -38,7 +38,7 @@ class DocumentDatabase(Database):
 
     def __init__(self, **kargs):
         super().__init__(**kargs)
-        self.book_insert_callbacks = []
+        self.document_insert_callbacks = []
         self.group_insert_callbacks = []
         self.group_word_insert_callbacks = []
         self.phrase_insert_callbacks = []
@@ -58,7 +58,7 @@ class DocumentDatabase(Database):
     #
 
     def add_document_insert_callback(self, callback):
-        self.book_insert_callbacks.append(callback)
+        self.document_insert_callbacks.append(callback)
 
     def add_group_insert_callback(self, callback):
         self.group_insert_callbacks.append(callback)
@@ -124,25 +124,13 @@ class DocumentDatabase(Database):
     # Database Insertion Functions
     #
 
-    def insert_book(self, title, author, path, size, date):
-        """
-        Insert a book to the database.
-        :param title: Title of the book
-        :param author: Author of the book
-        :param path: The path to the file containing the book text
-        :param size: The size of the book file
-        :param date: A date related to the book to store (publish / file date)
-        :return: The book id of the newly inserted book
-        """
-        return self.execute(queries.INSERT_BOOK,
+    def insert_document(self, title, author, path, size, date):
+
+        return self.execute(queries.INSERT_DOCUMENT,
                             (self.to_title(title), self.to_title(author), path, size, date)).lastrowid
 
     def insert_word(self, word):
-        """
-        Insert a word to the database (if it doesn't exists already).
-        :param word: The word string to insert. Assumed to be a valid single word.
-        :return: The word id of the newly inserted word
-        """
+
         return self.execute(queries.INSERT_WORD, (word, len(word))).lastrowid
 
     def insert_many_words(self, words):
@@ -183,7 +171,7 @@ class DocumentDatabase(Database):
         """
          Insert many word appearances to the database, by using the word string.
         :param word_appearances: Iterable of words appearances in the form of:
-            (book_id, name, word_index, paragraph, line, line_index, line_offset, sentence, sentence_index)
+            (document_id, name, word_index, paragraph, line, line_index, line_offset, sentence, sentence_index)
             where name is assumed to be an existing word name.
         """
         self.executemany(queries.INSERT_WORD_APPEARANCE, word_appearances)
@@ -192,7 +180,7 @@ class DocumentDatabase(Database):
         """
          Insert many word appearances to the database, by using word ids.
         :param word_id_appearances: Iterable of words appearances in the form of:
-            (book_id, word_id, word_index, paragraph, line, line_index, line_offset, sentence, sentence_index).
+            (document_id, word_id, word_index, paragraph, line, line_index, line_offset, sentence, sentence_index).
         """
         self.executemany(queries.INSERT_WORD_ID_APPEARANCE, word_id_appearances)
 
@@ -266,48 +254,30 @@ class DocumentDatabase(Database):
     # Advanced Insertion Functions
     #
 
-    def add_book(self, title, author, path, date):
-        """
-        Add a new book in the database.
-        :param title: Title of the book
-        :param author: Author of the book
-        :param path: The path to the file containing the book text
-        :param date: A date related to the book to store (publish / file date)
-        :raises FileNotFoundError: If the path doesn't exists
-        :return: The book id of the newly inserted book
-        """
-
-        # Make sure the file exists
+    def add_document(self, title, author, path, date):
         if not os.path.exists(path):
             raise FileNotFoundError
 
         # Insert a new book entry
         size = os.path.getsize(path)
-        book_id = self.insert_book(title, author, path, size, date)
+        document_id = self.insert_document(title, author, path, size, date)
 
-        # Iterate the parsed book words, and keep track of the words & appearances which needs to be inserted
         words = set()
         appearances = []
-        for appr in parse_book(path):
+        for appr in parse_document(path):
             word = self.to_single_word(appr[0])
             words.add(word)
-            appearances.append((book_id, word) + appr[1:])
+            appearances.append((document_id, word) + appr[1:])
 
         # Insert all the words and their appearances
         self.insert_many_words(words)
         self.insert_many_word_appearances(appearances)
 
         # Call the book insert callbacks
-        self.call_all_callbacks(self.book_insert_callbacks)
-        return book_id
+        self.call_all_callbacks(self.document_insert_callbacks)
+        return document_id
 
     def add_phrase(self, phrase):
-        """
-        Add a new phrase in the database.
-        :param phrase: The phrase text to be inserted
-        :return: The phrase id of the newly created phrase
-        """
-
         # Split to single valid words
         words = [self.to_single_word(match[0]) for match in re.finditer(VALID_WORD_REGEX, phrase)]
 
@@ -330,40 +300,21 @@ class DocumentDatabase(Database):
     #
 
     def build_and_exec(self, **kwargs):
-        """
-        Dynamically build a query, and execute it.
-        :param kwargs: Arguments to build_query
-        :return: All the matched entries
-        """
         return self.execute(build_query(**kwargs)).fetchall()
 
-    def search_books(self, tables=None, **kwargs):
-        """
-        Search the books table with dynamic filters
-        :param tables: Additional tables needed for the search
-        :param kwargs: Arguments to build_query
-        :return: All the matched book entries
-        """
+    def search_documents(self, tables=None, **kwargs):
+
         tables = set(tables) if tables else set()
-        tables.add("book")
+        tables.add("document")
 
         return self.build_and_exec(
-            cols=["book_id", "title", "author", "file_path", f"STRFTIME('{DATE_FORMAT}', creation_date)", "file_size"],
+            cols=["document_id", "title", "author", "file_path", f"STRFTIME('{DATE_FORMAT}', creation_date)", "file_size"],
             tables=tables,
-            group_by="book_id",
+            group_by="document_id",
             **kwargs
         )
 
     def search_word_appearances(self, cols=None, tables=None, unique_words=False, order_by=None, **kwargs):
-        """
-        Search the word appearances table with dynamic filters
-        :param cols: Iterable of columns to select
-        :param tables: Additional tables needed for the search
-        :param unique_words: When True, the same word will not be repeated
-        :param order_by: String to be used for ORDER BY
-        :param kwargs: Additional arguments to build_query
-        :return: All the matched appearances
-        """
 
         tables = set(tables) if tables else set()
         tables.add("word_appearance")
@@ -378,103 +329,48 @@ class DocumentDatabase(Database):
             **kwargs
         )
 
-    def word_location_to_offset(self, book_id, sentence, sentence_index, word_end_offset=False):
-        """
-        Search a book for the exact offset of a word in a sentence.
-        :param book_id: The book id of the book
-        :param sentence: The sentence number
-        :param sentence_index: The index of the word in the sentence
-        :param word_end_offset: If True, the returned offset is of the end of the word
-        :return: The offset as (line, offset) pair
-        """
+    def word_location_to_offset(self, document_id, sentence, sentence_index, word_end_offset=False):
+
         query = queries.WORD_LOCATION_TO_END_OFFSET if word_end_offset else queries.WORD_LOCATION_TO_OFFSET
-        return self.execute(query, (book_id, sentence, sentence_index)).fetchone()
+        return self.execute(query, (document_id, sentence, sentence_index)).fetchone()
 
     #
     # Query Database Functions
     #
 
     def all_words(self):
-        """
-        Get a list of all the inserted words.
-        :return: The list of words
-        """
+
         return self.execute(queries.ALL_WORDS).fetchall()
 
     def all_documents(self, date_format=DATE_FORMAT):
-        """
-        Get a list of all the inserted books.
-        :param date_format: The date format to use for the book date
-        :return: The list of books
-        """
-        return self.execute(queries.ALL_BOOKS, (date_format,)).fetchall()
 
-    def get_document_title(self, book_id):
-        """
-        Get the title of a book.
-        :param book_id: The book id of the book
-        :return: The book title
-        """
-        return self.execute(queries.BOOK_ID_TO_TITLE, (book_id,)).fetchone()
+        return self.execute(queries.ALL_DOCUMENTS, (date_format,)).fetchall()
 
-    def get_book_full_name(self, book_id):
-        """
-        Get the full name (TITLE by AUTHOR) of a book.
-        :param book_id: The book id of the book
-        :return: The full name of the book
-        """
-        return self.execute(queries.BOOK_ID_TO_FULL_NAME, (book_id,)).fetchone()
+    def get_document_title(self, document_id):
+        return self.execute(queries.DOCUMENT_ID_TO_TITLE, (document_id,)).fetchone()
 
-    def get_book_path(self, book_id):
-        """
-        Get the file path of a book.
-        :param book_id: The book id of the book
-        :return: The book file path
-        """
-        return self.execute(queries.BOOK_ID_TO_PATH, (book_id,)).fetchone()
+    def get_document_full_name(self, document_id):
 
-    def all_book_words(self, book_id):
-        """
-        Get a list the words in the book, ordered by appearance.
-        :param book_id: The book id of the book
-        :return: The list of words
-        """
-        return iter(self.execute(queries.ALL_BOOK_WORDS, (book_id,)))
+        return self.execute(queries.DOCUMENT_ID_TO_FULL_NAME, (document_id,)).fetchone()
+
+    def get_document_path(self, document_id):
+        return self.execute(queries.DOCUMENT_ID_TO_PATH, (document_id,)).fetchone()
+
+    def all_document_words(self, document_id):
+
+        return iter(self.execute(queries.ALL_DOCUMENT_WORDS, (document_id,)))
 
     def all_groups(self):
-        """
-        Get a list of all the inserted groups.
-        :return: The list of groups
-        """
         return self.execute(queries.ALL_GROUPS).fetchall()
 
     def words_in_group(self, group_id):
-        """
-        Get a list the words in a group.
-        :param group_id: The group id of the group
-        :return: The list of words, as pairs of (id, name)
-        """
         return self.execute(queries.ALL_WORDS_IN_GROUP, (group_id,)).fetchall()
 
     def all_phrases(self):
-        """
-        Get a list of all the inserted phrases.
-        :return: The list of phrases, as pairs of (text, id)
-        """
         return self.execute(queries.ALL_PHRASES).fetchall()
 
     def words_in_phrase(self, phrase_id):
-        """
-        Get a list the words in a phrase, ordered by appearance.
-        :param phrase_id: The phrase id of the phrase
-        :return: The list of word ids
-        """
         return self.execute(queries.ALL_WORDS_IN_PHRASE, (phrase_id,)).fetchall()
 
     def find_phrase(self, phrase_id):
-        """
-        Search a phrase for all of his appearances in book.
-        :param phrase_id: The phrase id of the phrase
-        :return: The list of appearances as (book_id, sentence, start_index, end_index) tuples.
-        """
         return self._run_sql_script(DocumentDatabase.SCRIPTS.SEARCH_PHRASE, (phrase_id,)).fetchall()

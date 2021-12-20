@@ -171,10 +171,10 @@ class DocumentHeader(CustomHeader):
         error_msg = ""
         try:
             date = datetime.strptime(self.date_input.get(), DATE_FORMAT)
-            self.db.add_book(self.name_input.get(),
-                             self.author_input.get(),
-                             self.file_input.get(),
-                             date)
+            self.db.add_document(self.name_input.get(),
+                                 self.author_input.get(),
+                                 self.file_input.get(),
+                                 date)
             self._update_documents_table()
             self._clear_book_insert_frame()
         except FileNotFoundError:
@@ -212,7 +212,7 @@ class DocumentHeader(CustomHeader):
 
     def _update_documents_table(self):
         """ Update the books list shown """
-        books = self.db.search_books(tables=self._get_books_filter_tables(), **self.filters)
+        books = self.db.search_documents(tables=self._get_books_filter_tables(), **self.filters)
         self.books_table.update(values=[book[:5] + (file_size_to_str(book[5]),) for book in books])
 
     def _select_book(self):

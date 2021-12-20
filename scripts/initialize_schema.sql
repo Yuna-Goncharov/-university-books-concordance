@@ -1,7 +1,7 @@
 -- This file contains the schema definition for the books database
 
-CREATE TABLE IF NOT EXISTS book (
-    book_id INTEGER NOT NULL PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS document (
+    document_id INTEGER NOT NULL PRIMARY KEY,
     title TEXT NOT NULL,
     author TEXT NOT NULL,
     file_path TEXT NOT NULL UNIQUE,
@@ -30,7 +30,7 @@ END;
 
 CREATE TABLE IF NOT EXISTS word_appearance (
     word_index INTEGER NOT NULL,
-    book_id INTEGER NOT NULL,
+    document_id INTEGER NOT NULL,
     word_id INTEGER NOT NULL,
     paragraph INTEGER NOT NULL,
     line INTEGER NOT NULL,
@@ -38,8 +38,8 @@ CREATE TABLE IF NOT EXISTS word_appearance (
     line_offset INTEGER NOT NULL,
     sentence INTEGER NOT NULL,
     sentence_index INTEGER NOT NULL,
-    PRIMARY KEY(word_index, book_id, word_id),
-    FOREIGN KEY(book_id) REFERENCES book,
+    PRIMARY KEY(word_index, document_id, word_id),
+    FOREIGN KEY(document_id) REFERENCES document,
     FOREIGN KEY(word_id) REFERENCES word
 );
 

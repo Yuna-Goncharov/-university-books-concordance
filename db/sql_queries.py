@@ -8,8 +8,8 @@ This files contains the different SQL queries used.
 #
 
 # language=SQL
-INSERT_BOOK = """
-INSERT INTO book(title, author, file_path, file_size, creation_date)
+INSERT_DOCUMENT = """
+INSERT INTO document(title, author, file_path, file_size, creation_date)
 values (?, ?, ?, ?, ?);
 """
 
@@ -27,13 +27,13 @@ values (?, ?);
 
 # language=SQL
 INSERT_WORD_APPEARANCE = """
-INSERT INTO word_appearance(book_id, word_id, word_index, paragraph, line, line_index, line_offset, sentence, sentence_index)
+INSERT INTO word_appearance(document_id, word_id, word_index, paragraph, line, line_index, line_offset, sentence, sentence_index)
 VALUES (?, (SELECT word_id FROM word WHERE name == ?), ?, ?, ?, ?, ?, ?, ?);
 """
 
 # language=SQL
 INSERT_WORD_ID_APPEARANCE = """
-INSERT INTO word_appearance(book_id, word_id, word_index, paragraph, line, line_index, line_offset, sentence, sentence_index)
+INSERT INTO word_appearance(document_id, word_id, word_index, paragraph, line, line_index, line_offset, sentence, sentence_index)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
 """
 
@@ -76,28 +76,28 @@ ALL_WORDS = "SELECT word_id, name " \
             "ORDER BY name"
 
 # language=SQL
-ALL_BOOKS = "SELECT book_id, title, author, file_path, file_size, STRFTIME(?, creation_date) " \
-            "FROM book"
+ALL_DOCUMENTS = "SELECT document_id, title, author, file_path, file_size, STRFTIME(?, creation_date) " \
+            "FROM document"
 
 # language=SQL
-BOOK_ID_TO_TITLE = "SELECT title " \
-                   "FROM book " \
-                   "WHERE book_id == ?"
+DOCUMENT_ID_TO_TITLE = "SELECT title " \
+                   "FROM document " \
+                   "WHERE document_id == ?"
 
 # language=SQL
-BOOK_ID_TO_FULL_NAME = "SELECT title || ' by ' || author " \
-                       "FROM book " \
-                       "WHERE book_id == ?"
+DOCUMENT_ID_TO_FULL_NAME = "SELECT title || ' by ' || author " \
+                       "FROM document " \
+                       "WHERE document_id == ?"
 
 # language=SQL
-BOOK_ID_TO_PATH = "SELECT file_path " \
-                  "FROM book " \
-                  "WHERE book_id == ?"
+DOCUMENT_ID_TO_PATH = "SELECT file_path " \
+                  "FROM document " \
+                  "WHERE document_id == ?"
 
 # language=SQL
-ALL_BOOK_WORDS = "SELECT word_id, paragraph, sentence, line, line_offset " \
+ALL_DOCUMENT_WORDS = "SELECT word_id, paragraph, sentence, line, line_offset " \
                  "FROM word_appearance " \
-                 "WHERE book_id == ? " \
+                 "WHERE document_id == ? " \
                  "ORDER BY word_index"
 
 # language=SQL
@@ -108,12 +108,12 @@ WORD_NAME_TO_ID = "SELECT word_id " \
 # language=SQL
 WORD_LOCATION_TO_OFFSET = "SELECT line, line_offset " \
                           "FROM word_appearance " \
-                          "WHERE book_id == ? AND sentence == ? AND sentence_index == ?"
+                          "WHERE document_id == ? AND sentence == ? AND sentence_index == ?"
 
 # language=SQL
 WORD_LOCATION_TO_END_OFFSET = "SELECT line, line_offset + length " \
                               "FROM word_appearance NATURAL JOIN word " \
-                              "WHERE book_id == ? AND sentence == ? AND sentence_index == ?"
+                              "WHERE document_id == ? AND sentence == ? AND sentence_index == ?"
 
 # language=SQL
 ALL_GROUPS = "SELECT group_id, name " \
@@ -140,8 +140,8 @@ ALL_WORDS_IN_PHRASE = "SELECT word_id " \
 #
 
 # language=SQL
-BOOKS_COUNT = "SELECT COUNT(book_id) " \
-              "FROM book"
+BOOKS_COUNT = "SELECT COUNT(document_id) " \
+              "FROM document"
 
 # language=SQL
 GROUPS_COUNT = "SELECT COUNT(group_id) " \
@@ -171,36 +171,36 @@ FROM
 
 # language=SQL
 TOTAL_SIZE = "SELECT SUM(file_size) " \
-             "FROM book"
+             "FROM document"
 
 # language=SQL
 TOTAL_WORDS = "SELECT COUNT(word_index) " \
               "FROM word_appearance " \
-              "WHERE book_id {book_id_filter}"
+              "WHERE document_id {document_id_filter}"
 
 # language=SQL
 TOTAL_UNIQUE_WORDS = "SELECT COUNT(DISTINCT word_id) " \
                      "FROM word_appearance " \
-                     "WHERE book_id {book_id_filter}"
+                     "WHERE document_id {document_id_filter}"
 
 # language=SQL
 TOTAL_LETTERS = "SELECT SUM(length) " \
                 "FROM word_appearance NATURAL JOIN word " \
-                "WHERE book_id {book_id_filter}"
+                "WHERE document_id {book_id_filter}"
 
 # language=SQL
 AVG_LETTERS_PER_WORD = "SELECT AVG(length) " \
                        "FROM word_appearance NATURAL JOIN word " \
-                       "WHERE book_id {book_id_filter}"
+                       "WHERE document_id {document_id_filter}"
 
 # language=SQL
 TOTAL_COLUMN_COUNT = """
-SELECT SUM(count_in_book) 
+SELECT SUM(count_in_document) 
 FROM 
-    (SELECT COUNT(DISTINCT {count_column}) as count_in_book 
+    (SELECT COUNT(DISTINCT {count_column}) as count_in_document 
     FROM word_appearance 
-    WHERE book_id {{book_id_filter}} 
-    GROUP BY book_id)
+    WHERE document_id {{document_id_filter}} 
+    GROUP BY document_id)
 """
 
 # language=SQL
@@ -209,7 +209,7 @@ SELECT AVG(words_count)
 FROM 
     (SELECT COUNT(DISTINCT word_index) as words_count 
     FROM word_appearance 
-    WHERE book_id {{book_id_filter}} 
+    WHERE document_id {{document_id_filter}} 
     GROUP BY {count_column})
 """
 
@@ -219,6 +219,6 @@ SELECT AVG(letters_count)
 FROM 
     (SELECT SUM(length) as letters_count
     FROM word_appearance NATURAL JOIN word
-    WHERE book_id {{book_id_filter}}
+    WHERE document_id {{book_id_filter}}
     GROUP BY {count_column})
 """

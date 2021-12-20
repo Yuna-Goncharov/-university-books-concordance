@@ -39,10 +39,10 @@ class DocumentPreview:
         # Check if the book is already shown
         if self.curr_book_id != book_id:
             # Update the title
-            self.title.update(value=self.db.get_book_full_name(book_id)[0])
+            self.title.update(value=self.db.get_document_full_name(book_id)[0])
 
             # Get the book file
-            path = self.db.get_book_path(book_id)
+            path = self.db.get_document_path(book_id)
             if not path:
                 raise FileNotFoundError
 

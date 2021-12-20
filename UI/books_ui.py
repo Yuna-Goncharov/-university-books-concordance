@@ -198,7 +198,7 @@ class DocumentsUi:
         curr_tab.handle_enter(self.window.find_element_with_focus())
 
     def debug_init_db(self):
-        # self.db.add_book("Book",
+        # self.db.add_document("Book",
         #                  "Unknown",
         #                  r"C:\Users\Lotem\Desktop\sql\ideas.txt",
         #                  datetime.now())

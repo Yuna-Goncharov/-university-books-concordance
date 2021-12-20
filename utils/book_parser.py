@@ -39,7 +39,7 @@ def parse_book_file(path):
     return title, author, date, size
 
 
-def parse_book(path):
+def parse_document(path):
     """
     Generator of word appearances in the path file.
     This yields appearances in the form of tuples containing:
