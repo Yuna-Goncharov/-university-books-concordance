@@ -30,7 +30,7 @@ class DocumentHeader(CustomHeader):
         self.selected_document_id = None
 
         self.layout([
-            [sg.Text("Insert New Document", font=sgh.HUGE_FONT_SIZE)],
+            [sg.Text("Insert New Document", font=sgh.HUGE_FONT_SIZE )],
             [self._create_document_form_frame()],
             [sg.Sizer(v_pixels=20)],
             [sg.Text("Inserted Documents", font=sgh.HUGE_FONT_SIZE)],
@@ -49,6 +49,7 @@ class DocumentHeader(CustomHeader):
 
         frame = sg.Frame(
             title="",
+            title_location=sg.TEXT_LOCATION_LEFT,
             layout=[
                 [sg.Text("Doc Path:", size=(8, 1)), self.file_input, browse_button],
                 [sg.Text("Name:", size=(8, 1)), self.name_input],

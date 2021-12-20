@@ -7,6 +7,7 @@ import PySimpleGUI as sg
 #
 
 CENTER = tk.CENTER
+LEFT = tk.LEFT
 
 #
 # My constants

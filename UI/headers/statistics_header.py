@@ -57,8 +57,12 @@ class StatisticsHeader(CustomHeader):
             statistic_lines.append([title, result_text])
 
         frame = sg.Frame(
-            title="Statistics",
-            layout=statistic_lines
+            title="Statistics: ",
+            font=sgh.BIG_FONT_SIZE,
+            layout=statistic_lines,
+            size=(1000, 250),
+            title_location=sg.TITLE_LOCATION_TOP,
+            element_justification=sgh.LEFT
         )
 
         return frame
