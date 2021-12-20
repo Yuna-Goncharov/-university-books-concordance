@@ -1,11 +1,3 @@
-"""
-This files contains the different SQL queries used.
-"""
-
-
-#
-# INSERT TO DATABASE
-#
 
 # language=SQL
 INSERT_DOCUMENT = """
@@ -65,10 +57,6 @@ INSERT_WORD_ID_TO_PHRASE = """
 INSERT INTO word_in_phrase(phrase_id, word_id, phrase_index)
 values (?, ?, ?);
 """
-
-#
-# SIMPLE QUERIES
-#
 
 # language=SQL
 ALL_WORDS = "SELECT word_id, name " \
@@ -135,12 +123,8 @@ ALL_WORDS_IN_PHRASE = "SELECT word_id " \
                       "WHERE phrase_id == ? " \
                       "ORDER BY phrase_index"
 
-#
-# STATISTICS
-#
-
 # language=SQL
-BOOKS_COUNT = "SELECT COUNT(document_id) " \
+DOCUMENTS_COUNT = "SELECT COUNT(document_id) " \
               "FROM document"
 
 # language=SQL

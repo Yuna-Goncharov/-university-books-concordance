@@ -11,30 +11,18 @@ from utils.constants import VALID_WORD_REGEX, DATE_FORMAT
 
 
 class DocumentDatabase(Database):
-    """
-    Books database manager class.
-    It is the python interface to perform actions on the books database.
-    """
 
-    # Cache size for get_word_id
     WORD_IDS_CACHE_SIZE = 1000
 
     VALID_MULTIPLE_WORDS = rf"{VALID_WORD_REGEX}(\W+{VALID_WORD_REGEX})*"
     INVALID_GROUP_NAMES = ["None", "All"]  # These names can't be used as a group name
 
-    # Different arguments to order_by of word when building a dynamic query
-    ALPHABET_ORDER = "name"
     APPEARANCES_ORDER = "COUNT(word_index)"
     LENGTH_ORDER = "length"
 
-    # Script names
     class SCRIPTS:
         INITIALIZE_SCHEMA = "initialize_schema"
         SEARCH_PHRASE = "search_phrase"
-
-    #
-    # Initializations Functions
-    #
 
     def __init__(self, **kargs):
         super().__init__(**kargs)
@@ -44,18 +32,12 @@ class DocumentDatabase(Database):
         self.phrase_insert_callbacks = []
 
     def _initialize_schema(self):
-        """ Initialize the db with the books schema. """
         self._run_sql_script(DocumentDatabase.SCRIPTS.INITIALIZE_SCHEMA, multiple_statements=True)
 
     def new_connection(self, always_create=False, new_path=None, commit=True):
         if not super().new_connection(always_create, new_path, commit):
-            # Only if a new connection was created
             self._initialize_schema()
         self.get_word_id.cache_clear()
-
-    #
-    # Callbacks Functions
-    #
 
     def add_document_insert_callback(self, callback):
         self.document_insert_callbacks.append(callback)
@@ -71,17 +53,8 @@ class DocumentDatabase(Database):
 
     @staticmethod
     def call_all_callbacks(callbacks, *args):
-        """
-        Call of the callbacks in the given list with the given arguments.
-        :param callbacks: The callbacks list
-        :param args: The arguments to pass
-        """
         for callback in callbacks:
             callback(*args)
-
-    #
-    # String Functions
-    #
 
     @staticmethod
     def assert_valid_word(word):
@@ -90,12 +63,6 @@ class DocumentDatabase(Database):
 
     @staticmethod
     def to_single_word(word):
-        """
-        Convert a string to a stripped lower case.
-        :param word: The word to convert.
-        :raises CheckError: If the string isn't a valid single word
-        :return: The string as a string word
-        """
         single_word = word.lower().strip()
         DocumentDatabase.assert_valid_word(single_word)
         return single_word
@@ -110,19 +77,9 @@ class DocumentDatabase(Database):
 
     @staticmethod
     def to_title(words):
-        """
-        Convert a string to a stripped title case.
-        :param words: The word to convert.
-        :raises CheckError: If the string isn't a valid title
-        :return: The string as a title
-        """
         title = words.title().strip()
         DocumentDatabase.assert_valid_title(title)
         return title
-
-    #
-    # Database Insertion Functions
-    #
 
     def insert_document(self, title, author, path, size, date):
 
@@ -134,63 +91,27 @@ class DocumentDatabase(Database):
         return self.execute(queries.INSERT_WORD, (word, len(word))).lastrowid
 
     def insert_many_words(self, words):
-        """
-        Insert many words to the database (only those who doesn't exists already).
-        :param words: Iterable of words to be inserted
-        """
         self.executemany(queries.INSERT_WORD, ((word, len(word)) for word in words))
 
     def insert_many_words_with_id(self, words_with_ids):
-        """
-        Insert many words to the database, with the given word ids.
-        :param words_with_ids: Iterable of words and their ids to be inserted
-        """
         self.executemany(queries.INSERT_WORD_WITH_ID,
                          ((word_id, self.to_single_word(word)) for word, word_id in words_with_ids))
 
     # Will be used a lot for the same words, so caching the result can improve performance
     @functools.lru_cache(WORD_IDS_CACHE_SIZE)
     def get_word_id(self, word):
-        """
-        Return the word_id of a word.
-        If that word doesn't have and id, it will be added to the db.
-        :param word: The word to search for
-        :return: The word id of the word
-        """
-
         word = self.to_single_word(word)
-
-        # Most of the words we'll search for will already be inserted.
-        # So we should first search for the word, and only try to insert it if it doesn't exists,
-        # and not the other way around.
         search_result = self.execute(queries.WORD_NAME_TO_ID, (word,)).fetchone()
 
         return self.insert_word(word) if search_result is None else search_result[0]
 
     def insert_many_word_appearances(self, word_appearances):
-        """
-         Insert many word appearances to the database, by using the word string.
-        :param word_appearances: Iterable of words appearances in the form of:
-            (document_id, name, word_index, paragraph, line, line_index, line_offset, sentence, sentence_index)
-            where name is assumed to be an existing word name.
-        """
         self.executemany(queries.INSERT_WORD_APPEARANCE, word_appearances)
 
     def insert_many_word_id_appearances(self, word_id_appearances):
-        """
-         Insert many word appearances to the database, by using word ids.
-        :param word_id_appearances: Iterable of words appearances in the form of:
-            (document_id, word_id, word_index, paragraph, line, line_index, line_offset, sentence, sentence_index).
-        """
         self.executemany(queries.INSERT_WORD_ID_APPEARANCE, word_id_appearances)
 
     def insert_words_group(self, name):
-        """
-        Insert a group to the database.
-        :param name: The name of the group
-        :raises CheckError: If the name isn't a valid group name
-        :return: The group id of the newly inserted group
-        """
         name = self.to_title(name)
         if name in DocumentDatabase.INVALID_GROUP_NAMES:
             raise CheckError
@@ -202,12 +123,6 @@ class DocumentDatabase(Database):
         return group_id
 
     def insert_word_to_group(self, group_id, word):
-        """
-        Insert a word to a group with a given id.
-        :param group_id: The group id of to group to insert the word into
-        :param word: The word to insert, assumed to be an existing word name.
-        :return: The rowid of the inserted table entry
-        """
         rowid = self.execute(queries.INSERT_WORD_TO_GROUP, (group_id, self.get_word_id(word))).lastrowid
 
         # Call the group word insert callbacks with the id of the group
@@ -215,50 +130,23 @@ class DocumentDatabase(Database):
         return rowid
 
     def insert_many_word_ids_to_group(self, group_id, word_ids):
-        """
-        Insert many word ids to a group with a given id.
-        :param group_id: The group id of to group to insert the word into
-        :param word_ids: Iterable of the word ids to insert.
-        """
         self.executemany(queries.INSERT_WORD_TO_GROUP, ((group_id, word_id) for word_id in word_ids))
-        # no need for callbacks here
 
     def insert_phrase(self, phrase, words_count):
-        """
-        Insert a phrase to the database.
-        :param phrase: The text of the phrase
-        :param words_count: The number of words in the phrase
-        :return: The phrase id of the newly inserted phrase
-        """
         return self.execute(queries.INSERT_PHRASE, (phrase, words_count,)).lastrowid
 
     def insert_many_words_to_phrase(self, words_in_phrase):
-        """
-        Insert many words to phrases.
-        :param words_in_phrase: Iterable of words in phrase in the form of:
-            (phrase_id, name, phrase_index)
-            where name is assumed to be an existing word name.
-        """
         self.executemany(queries.INSERT_WORD_TO_PHRASE, words_in_phrase)
 
     def insert_many_word_ids_to_phrase(self, phrase_id, word_ids):
-        """
-        Insert many word ids to a group with a given phrase id.
-        :param phrase_id: The phrase id to insert to words into
-        :param word_ids: Iterable of the word ids to insert
-        """
         self.executemany(queries.INSERT_WORD_ID_TO_PHRASE,
                          ((phrase_id, word_id, index) for index, word_id in enumerate(word_ids)))
-
-    #
-    # Advanced Insertion Functions
-    #
 
     def add_document(self, title, author, path, date):
         if not os.path.exists(path):
             raise FileNotFoundError
 
-        # Insert a new book entry
+        # Insert a new document entry
         size = os.path.getsize(path)
         document_id = self.insert_document(title, author, path, size, date)
 
@@ -273,7 +161,7 @@ class DocumentDatabase(Database):
         self.insert_many_words(words)
         self.insert_many_word_appearances(appearances)
 
-        # Call the book insert callbacks
+        # Call the document insert callbacks
         self.call_all_callbacks(self.document_insert_callbacks)
         return document_id
 
@@ -294,10 +182,6 @@ class DocumentDatabase(Database):
         # Call the phrase insert callbacks
         self.call_all_callbacks(self.phrase_insert_callbacks)
         return phrase_id
-
-    #
-    # Dynamic Database Queries Functions
-    #
 
     def build_and_exec(self, **kwargs):
         return self.execute(build_query(**kwargs)).fetchall()
@@ -333,10 +217,6 @@ class DocumentDatabase(Database):
 
         query = queries.WORD_LOCATION_TO_END_OFFSET if word_end_offset else queries.WORD_LOCATION_TO_OFFSET
         return self.execute(query, (document_id, sentence, sentence_index)).fetchone()
-
-    #
-    # Query Database Functions
-    #
 
     def all_words(self):
 

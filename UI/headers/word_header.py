@@ -401,7 +401,6 @@ class WordHeader(CustomHeader):
         letters_filter = letters_filter.replace("*", "%")
         self.words_filters["value"] = letters_filter
 
-        # Word appearance filters
         selected_book = self.document_filter_dropdown.get()
         self.word_appearance_filters["document_id"] = self.document_names_to_id.get(selected_book)
 

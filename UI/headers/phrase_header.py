@@ -172,11 +172,9 @@ class PhraseHeader(CustomHeader):
             self._add_phrase()
 
     def _clear_phrase_error(self):
-        """ Clear the phrase error text """
         self.phrase_input_error.update("")
 
     def _add_phrase(self):
-        """ Insert the entered phrase to the database """
         phrase = self.phrase_input.get()
         if phrase not in self.phrases:
             try:
@@ -189,24 +187,18 @@ class PhraseHeader(CustomHeader):
             self.phrase_input_error.update("Phrase already inserted.", text_color=sgh.ERROR_TEXT_COLOR)
 
     def _update_phrase_dropdown(self, curr_value=""):
-        """ Update the list of available phrases for search """
         self.phrase_dropdown.update(values=list(self.phrases.keys()), value=curr_value)
         self._search_phrase()
 
     def _search_phrase(self):
-        """ Search the selected phrase for all of his appearances """
         selected_phrase = self.phrase_dropdown.get()
         self.selected_phrase_id = self.phrases.get(selected_phrase)
         self._update_phrase_appr_table()
 
     def _update_phrase_appr_table(self):
-        """ Update the appearances table with all the found appearances of the phrase """
-
-        # Check if there is a selected phrase
         if self.selected_phrase_id:
             appearances = self.db.find_phrase(self.selected_phrase_id)
 
-            # Iterate over the found phrases and convert them to the wanted table columns
             phrases_appr_table_values = []
             for document_id, sentence, start_index, end_index in appearances:
                 start_line, start_line_offset = self.db.word_location_to_offset(document_id, sentence, start_index)
@@ -220,15 +212,13 @@ class PhraseHeader(CustomHeader):
             self.appearances_count_text.update(value=f"Number of Appearances: {len(phrases_appr_table_values)}")
             self.phrase_appr_table.update(values=phrases_appr_table_values)
         else:
-            # No phrase was selected
             self.appearances_count_text.update(value=f"Number of Appearances: None")
             self.phrase_appr_table.update(values=[])
 
-        # Check if there where any appearances found
         if self.phrase_appr_table.TKTreeview.get_children():
-            # Manually select the first appearance to be shown
-            self.phrase_appr_table.TKTreeview.selection_set(1)  # This updates the GUI widget
-            self.phrase_appr_table.SelectedRows = [0]  # This updates PySimpleGUI's rows logic
+
+            self.phrase_appr_table.TKTreeview.selection_set(1)
+            self.phrase_appr_table.SelectedRows = [0]
             self._select_phrase_appr()
         else:
             self.document_preview.hide_preview()

@@ -159,16 +159,13 @@ class GroupHeader(CustomHeader):
             self._insert_word()
 
     def _clear_group_error(self):
-        """ Clear the group error text """
         self.group_error_text.update("")
 
     def _insert_group(self):
-        """ Insert the entered group to the database """
         try:
             self.db.insert_words_group(self.group_input.get())
             self.group_input.update("")
 
-            # Select the newly added group
             self.select_group_list.update(set_to_index=len(self.groups_list) - 1)
             self._select_group()
         except NonUniqueError:
@@ -177,17 +174,14 @@ class GroupHeader(CustomHeader):
             self.group_error_text.update("Invalid group name.")
 
     def _update_groups_list(self):
-        """ Update the list of groups """
         self.groups_list = self.db.all_groups()
         self.select_group_list.update(values=[group[1] for group in self.groups_list])
 
-        # If we only have 1 item in the list, we should select it manually
         if len(self.groups_list) == 1:
             self.select_group_list.update(set_to_index=0)
             self._select_group()
 
     def _select_group(self):
-        """ Select a group to insert words into """
         select_group_list_indexes = self.select_group_list.get_indexes()
         if select_group_list_indexes:
             selected_group_row = select_group_list_indexes[0]
@@ -197,11 +191,9 @@ class GroupHeader(CustomHeader):
                 self._update_words_list()
 
     def _clear_word_error(self):
-        """ Clear the word insert error text """
         self.words_error_text.update("")
 
     def _insert_word(self):
-        """ Insert the entered word into the currently selected group """
         if self.selected_group_id is not None:
             try:
                 self.db.insert_word_to_group(self.selected_group_id, self.word_input.get())
@@ -214,10 +206,8 @@ class GroupHeader(CustomHeader):
             self.words_error_text.update("No group was selected.")
 
     def _group_word_insertion_callback(self, group_id):
-        """ Update the words list if the currently selected group was updated"""
         if self.selected_group_id == group_id:
             self._update_words_list()
 
     def _update_words_list(self):
-        """ Update the words list with the words from the currently selected group """
         self.words_list.update(values=[name for word_id, name in self.db.words_in_group(self.selected_group_id)])

@@ -99,7 +99,6 @@ class DocumentsUi:
         return [upload_button, save_button, import_button, export_button]
 
     def _reload_tabs(self):
-        """ Reload all the headers with the content from the database """
         try:
             for row in self.tabs.Rows:
                 for tab in row:
@@ -112,16 +111,11 @@ class DocumentsUi:
         return True
 
     def reset_database(self, ask_for_confirmation=True):
-        """ Reset the database """
         if not ask_for_confirmation or sg.popup_yes_no(self.UNSAVED_DATA_WARNING, title="New") == "Yes":
             self.db.new_connection()
             self._reload_tabs()
 
     def _save_database(self, switch_to_new):
-        """
-        Save the current connection to a file.
-        :param switch_to_new: Should we switch the connection to the saved file
-        """
         path = sg.popup_get_file(
             message=None,
             no_window=True,
@@ -138,7 +132,6 @@ class DocumentsUi:
                 sg.popup_ok(self.SAVE_SUCCESS, title="Saved As", non_blocking=True)
 
     def _load_database(self):
-        """ Load the database from a file """
         if sg.popup_yes_no(self.UNSAVED_DATA_WARNING, title="Load") == "Yes":
             path = sg.PopupGetFile(
                 message=None,
@@ -152,7 +145,6 @@ class DocumentsUi:
                     sg.popup_ok(self.LOADING_SUCCESS, DocumentsUi.AUTO_SAVE_NOTICE, title="Load", non_blocking=True)
 
     def _export_database(self):
-        """ Export the database to a XML file """
         path = sg.popup_get_file(
             message=None,
             no_window=True,
@@ -164,7 +156,6 @@ class DocumentsUi:
             export_db(self.db, path)
 
     def import_database(self):
-        """ Import the database from a XML file """
         if sg.popup_yes_no(self.UNSAVED_DATA_WARNING, title="Import") == "Yes":
             path = sg.PopupGetFile(
                 message=None,
@@ -183,17 +174,14 @@ class DocumentsUi:
                     self.reset_database(ask_for_confirmation=False)
 
     def create_tabs(self):
-        """ Create all the headers """
         return [tab_class(self.db) for tab_class in DocumentsUi.TAB_CLASSES]
 
     def initialize_tabs(self):
-        """ Initialize all the headers """
         for row in self.tabs.Rows:
             for tab in row:
                 tab.initialize()
 
     def handle_enter(self, _key_event):
-        """ Handle the press of the enter key """
         curr_tab = self.window.Element(self.tabs.get())  # type: CustomHeader
         curr_tab.handle_enter(self.window.find_element_with_focus())
 
@@ -202,26 +190,18 @@ class DocumentsUi:
         self.db.insert_words_group("Test Words")
 
     def start(self):
-        """
-        Start the main loop of the application.
-        Receive events from the window and handle them.
-        """
         self.initialize_tabs()
-        # self.debug_init_db()
 
         while True:
             event = self.window.read()[0]
 
             if event is None:
-                # Window was closed
                 break
             elif event in self.callbacks:
                 self.callbacks[event]()
             else:
-                # Forward the event to the current selected tab
                 curr_tab = self.window.Element(self.tabs.get())  # type: CustomHeader
                 curr_tab.handle_event(event)
 
-        # Commit the database and close the window
         self.db.commit()
         self.window.close()

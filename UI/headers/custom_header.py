@@ -7,7 +7,7 @@ from db.Documents_db import DocumentDatabase
 class CustomHeader(sg.Tab):
     def __init__(self, db, *args, **kwargs):
         super().__init__(element_justification=sgh.CENTER, *args, **kwargs)
-        self.db = db  # type: DocumentDatabase
+        self.db = db
 
     def initialize(self):
         pass

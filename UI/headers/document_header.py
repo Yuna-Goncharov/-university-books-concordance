@@ -8,7 +8,7 @@ import PySimpleGUI as sg
 import UI.UI_defaults as sgh
 from db.exceptions import NonUniqueError, CheckError
 from UI.headers.custom_header import CustomHeader
-from utils.book_parser import parse_book_file
+from utils.book_parser import parse_document_file
 from utils.constants import DATE_FORMAT
 from utils.utils import file_size_to_str
 
@@ -132,18 +132,16 @@ class DocumentHeader(CustomHeader):
         }
 
     def _load_file_input(self):
-        """ Try to load the input file as it is being typed """
 
         path = self.file_input.get()
-        # The default book name is the filename
-        book_name = splitext(split(path)[-1])[0].replace('_', ' ').title()
+        document_name = splitext(split(path)[-1])[0].replace('_', ' ').title()
 
         # Parse the book file
         try:
-            name, author, date, size = parse_book_file(path)
+            name, author, date, size = parse_document_file(path)
             size_str = file_size_to_str(size)
             if name:
-                book_name = name
+                document_name = name
             if not author:
                 author = "Unknown"
         except (OSError, FileNotFoundError):
@@ -155,7 +153,7 @@ class DocumentHeader(CustomHeader):
         if date:
             self.date_input.update(datetime.fromtimestamp(date).strftime(DATE_FORMAT))
 
-        self.name_input.update(book_name)
+        self.name_input.update(document_name)
         self.author_input.update(author)
         self.error_text.update("")
 

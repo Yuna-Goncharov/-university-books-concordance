@@ -1,6 +1,3 @@
-"""
-This file contains general constants that are used in multiple places
-"""
 
 VALID_WORD_LETTERS = r"[^\W_]"
 VALID_WORD_REGEX = rf"{VALID_WORD_LETTERS}+(({VALID_WORD_LETTERS}|')*{VALID_WORD_LETTERS}+)?"

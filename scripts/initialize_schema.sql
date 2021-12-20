@@ -1,4 +1,3 @@
--- This file contains the schema definition for the books database
 
 CREATE TABLE IF NOT EXISTS document (
     document_id INTEGER NOT NULL PRIMARY KEY,

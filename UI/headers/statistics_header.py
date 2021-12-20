@@ -12,18 +12,16 @@ ALL_BOOKS_FILTER = "> 0"
 
 class StatisticsHeader(CustomHeader):
 
-    # General statistics about the amount of stuff inserted
     GENERAL_STATISTICS = (
-        ("Total Documents", queries.BOOKS_COUNT),
+        ("Total Documents", queries.DOCUMENTS_COUNT),
         ("Total Groups", queries.GROUPS_COUNT),
         ("Average Words in Group", queries.AVG_WORDS_PER_GROUP),
         ("Total Phrases", queries.PHRASES_COUNT),
         ("Average Words in Phrase", queries.AVG_WORDS_PER_PHRASE)
     )
 
-    # Event keys
     class EventKeys(Enum):
-        SELECT_BOOK = auto()
+        SELECT_DOCUMENT = auto()
 
     def __init__(self, db):
         super().__init__(db, "Statistics Browser", [[]])
@@ -67,8 +65,6 @@ class StatisticsHeader(CustomHeader):
 
         return frame
 
-
-
     def initialize(self):
         self.reload()
 
@@ -78,21 +74,19 @@ class StatisticsHeader(CustomHeader):
     @property
     def callbacks(self):
         return {
-            StatisticsHeader.EventKeys.SELECT_BOOK: self._select_document,
+            StatisticsHeader.EventKeys.SELECT_DOCUMENT: self._select_document,
         }
 
     def _update_document_dropdown(self):
         documents = self.db.all_documents()
         self.document_names_to_id = {f'{document[1]} by {document[2]}': document[0] for document in documents}
 
-        book_options = ["All"] + list(self.document_names_to_id.keys())
+        document_options = ["All"] + list(self.document_names_to_id.keys())
 
         self._refresh_general_statistics()
 
-
     def _select_document(self):
         old_id = self.selected_document_id
-
 
     @staticmethod
     def _single_result_to_str(cursor):
