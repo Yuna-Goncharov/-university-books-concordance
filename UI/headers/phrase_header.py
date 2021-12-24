@@ -4,7 +4,7 @@ import PySimpleGUI as sg
 
 import UI.UI_defaults as sgh
 from db.exceptions import CheckError
-from UI.book_context_manager import DocumentPreview
+from UI.document_context_manager import DocumentPreview
 from UI.headers.custom_header import CustomHeader
 
 
@@ -22,7 +22,7 @@ class PhraseHeader(CustomHeader):
 
         self.phrases = {}
         self.selected_phrase_id = None
-        self.curr_showed_book = None
+        self.curr_showed_document = None
 
         self.layout(
             [

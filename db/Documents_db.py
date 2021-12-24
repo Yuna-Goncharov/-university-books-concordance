@@ -68,7 +68,7 @@ class DocumentDatabase(Database):
         return single_word
 
     @staticmethod
-    def assert_valid_title(words):
+    def assert_valid_name(words):
         valid = re.fullmatch(DocumentDatabase.VALID_MULTIPLE_WORDS, words) and \
                 words == words.title()
 
@@ -77,14 +77,14 @@ class DocumentDatabase(Database):
 
     @staticmethod
     def to_title(words):
-        title = words.title().strip()
-        DocumentDatabase.assert_valid_title(title)
-        return title
+        name = words.title().strip()
+        DocumentDatabase.assert_valid_name(name)
+        return name
 
-    def insert_document(self, title, author, path, size, date):
+    def insert_document(self, name, author, path, size, date):
 
         return self.execute(queries.INSERT_DOCUMENT,
-                            (self.to_title(title), self.to_title(author), path, size, date)).lastrowid
+                            (self.to_title(name), self.to_title(author), path, size, date)).lastrowid
 
     def insert_word(self, word):
 

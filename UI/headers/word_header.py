@@ -5,7 +5,7 @@ import PySimpleGUI as sg
 
 import UI.UI_defaults as sgh
 from db.Documents_db import DocumentDatabase
-from UI.book_context_manager import DocumentPreview
+from UI.document_context_manager import DocumentPreview
 from UI.headers.custom_header import CustomHeader
 
 
@@ -58,7 +58,7 @@ class WordHeader(CustomHeader):
         self.words_list = []
         self.document_names_to_id = {}
         self.group_name_to_id = {"All": "%"}
-        self.curr_showed_book = None
+        self.curr_showed_document = None
         self.selected_word_id = None
         self.selected_word_length = None
         self.words_filters = {}
@@ -231,7 +231,6 @@ class WordHeader(CustomHeader):
         return col
 
     def _create_word_preview_column(self):
-        # header_name, is_visible
         headers = [
             ("Document", True),
             ("Document Id", False),
@@ -401,10 +400,9 @@ class WordHeader(CustomHeader):
         letters_filter = letters_filter.replace("*", "%")
         self.words_filters["value"] = letters_filter
 
-        selected_book = self.document_filter_dropdown.get()
-        self.word_appearance_filters["document_id"] = self.document_names_to_id.get(selected_book)
+        selected_document = self.document_filter_dropdown.get()
+        self.word_appearance_filters["document_id"] = self.document_names_to_id.get(selected_document)
 
-        # If one of the filters was changed
         if self.words_filters != old_words_filters or \
                 self.word_appearance_filters != self.old_word_appearance_filters:
             self._update_words_list()
@@ -492,8 +490,8 @@ class WordHeader(CustomHeader):
             self.word_appr_table.update(values=[])
 
         if self.word_appr_table.TKTreeview.get_children():
-            self.word_appr_table.TKTreeview.selection_set(1)  # This updates the GUI widget
-            self.word_appr_table.SelectedRows = [0]  # This updates PySimpleGUI's rows logic
+            self.word_appr_table.TKTreeview.selection_set(1)
+            self.word_appr_table.SelectedRows = [0]
             self._select_word_appr()
         else:
             self.document_preview.hide_preview()
@@ -503,7 +501,7 @@ class WordHeader(CustomHeader):
             selected_word_appr_row = self.word_appr_table.SelectedRows[0]
             if selected_word_appr_row < len(self.word_appr_table.Values):
                 if self.word_appr_table.Values[selected_word_appr_row]:
-                    (_book_name, document_id, line_offset, _word_index, _paragraph, line) = \
+                    (_document_name, document_id, line_offset, _word_index, _paragraph, line) = \
                         self.word_appr_table.Values[selected_word_appr_row][0:6]
 
                     self.document_preview.set_preview(document_id, line, line_offset,

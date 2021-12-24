@@ -18,10 +18,8 @@ def cached_read(filename):
             with codecs.open(filename, "r", encoding=encoding) as file:
                 return file.read()
         except UnicodeDecodeError:
-            # Continue to next encoding
             pass
 
-    # No encoding was found
     raise UnicodeDecodeError
 
 

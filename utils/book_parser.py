@@ -14,7 +14,6 @@ def parse_document_file(path):
     name_match = None
     author_match = None
 
-    # Iterate over the lines and search for the name and author
     for line in cached_read(path).splitlines():
         if not name_match:
             name_match = re.search(TITLE_REGEX, line)

@@ -38,7 +38,6 @@ class DocumentsUi:
 
     LOADING_SUCCESS = "Successfully loaded from file."
 
-    # The headers
     TAB_CLASSES = StatisticsHeader, DocumentHeader, WordHeader, GroupHeader, PhraseHeader
 
     # Event keys
@@ -50,13 +49,10 @@ class DocumentsUi:
         TABS = auto()
 
     def __init__(self):
-        # Config my custom theme
         sgh.config_theme()
 
-        # Create the database
         self.db = DocumentDatabase()
 
-        # Create the window and the headers
         self.window = sg.Window(sgh.WINDOW_TITLE, size=WINDOW_SIZE, finalize=True)
         self.tabs = sg.TabGroup([self.create_tabs()], key=DocumentsUi.KEYS.TABS, enable_events=True)
         self.window.layout([
