@@ -1,6 +1,3 @@
-"""
-This file handles the exporting process of the books database to an XML.
-"""
 
 from xml.dom import minidom
 from xml.etree.ElementTree import ElementTree, Element, Comment, SubElement, tostring
@@ -10,48 +7,36 @@ from utils.constants import XML_DATE_FORMAT
 
 
 def prettify(elem):
-    """
-    Convert an Element to a prettified string.
-    :param elem: The element to convert
-    :return: A prettified string of the element.
-    """
     rough_string = tostring(elem, 'utf-8')
     return minidom.parseString(rough_string).toprettyxml(indent="  ")
 
 
 def export_words(db):  # type: (DocumentDatabase) -> Element
-    """ Create the words element, with all the words in the database """
     words = Element('words')
 
-    # Iterate over all the words
     for word_id, name in db.all_words():
-        # Create a word element
         SubElement(words, "word", {"id": str(word_id)}).text = name
 
     return words
 
 
-def export_books(db):  # type: (DocumentDatabase) -> Element
-    """ Create the books element, with all the books in the database """
-    books = Element('books')
+def export_documents(db):  # type: (DocumentDatabase) -> Element
+    documents = Element('documents')
 
-    # Iterate over all the books
-    for book_id, title, author, path, size, date in db.all_documents(date_format=XML_DATE_FORMAT):
-        # Crete a book element
-        book = SubElement(books, "book")
-        SubElement(book, "title").text = title
-        SubElement(book, "author").text = author
-        SubElement(book, "path").text = path
-        SubElement(book, "size").text = str(size)
-        SubElement(book, "date").text = date
-        body = SubElement(book, "body")
+    for document_id, name, author, path, size, date in db.all_documents(date_format=XML_DATE_FORMAT):
+        document = SubElement(documents, "document")
+        SubElement(document, "name").text = name
+        SubElement(document, "author").text = author
+        SubElement(document, "path").text = path
+        SubElement(document, "size").text = str(size)
+        SubElement(document, "date").text = date
+        body = SubElement(document, "body")
 
-        # Iterate over all the words appearances and insert them
         curr_paragraph = None
         curr_paragraph_element = None
         curr_sentence = None
         curr_sentence_element = None
-        for word_appr in db.all_document_words(book_id):
+        for word_appr in db.all_document_words(document_id):
             word_id, paragraph, sentence, line, line_offset = word_appr
 
             # Create a new paragraph
@@ -67,11 +52,10 @@ def export_books(db):  # type: (DocumentDatabase) -> Element
             # Create an appearance element
             SubElement(curr_sentence_element, "appr", {"refid": str(word_id)}).text = f"{line}:{line_offset}"
 
-    return books
+    return documents
 
 
 def export_groups(db):  # type: (DocumentDatabase) -> Element
-    """ Create the groups element, with all the groups in the database """
     groups = Element('groups')
 
     # Iterate over all the groups
@@ -89,7 +73,6 @@ def export_groups(db):  # type: (DocumentDatabase) -> Element
 
 
 def export_phrases(db):  # type: (DocumentDatabase) -> Element
-    """ Create the phrases element, with all the phrases in the database """
     phrases = Element('phrases')
 
     # Iterate over all the phrases
@@ -107,18 +90,13 @@ def export_phrases(db):  # type: (DocumentDatabase) -> Element
 
 
 def build_xml(db):  # type: (DocumentDatabase) -> ElementTree
-    """
-    Create an ElementTree representation of the given books database.
-    :param db: The books database
-    :return: ElementTree representation of the database.
-    """
     root = Element('tables')
 
     comment = Comment('Document Database')
     root.append(comment)
 
     root.append(export_words(db))
-    root.append(export_books(db))
+    root.append(export_documents(db))
     root.append(export_groups(db))
     root.append(export_phrases(db))
 
@@ -126,12 +104,6 @@ def build_xml(db):  # type: (DocumentDatabase) -> ElementTree
 
 
 def export_db(db, xml_path, prettify=False):
-    """
-    Export a given db to a XML file.
-    :param db: The database to export
-    :param xml_path: The path to the XML to be written to
-    :param prettify: Should the XML string be prettified. Effects performance.
-    """
     tree = build_xml(db)
 
     with open(xml_path, "wb") as xml_output:

@@ -4,7 +4,7 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element ref="words"/>
-                <xs:element ref="books"/>
+                <xs:element ref="documents"/>
                 <xs:element ref="groups"/>
                 <xs:element ref="phrases"/>
              </xs:sequence>
@@ -17,14 +17,14 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-    <xs:element name="books">
+    <xs:element name="documents">
         <xs:complexType>
             <xs:sequence>
-                <xs:element maxOccurs="unbounded" minOccurs="0" ref="book"/>
+                <xs:element maxOccurs="unbounded" minOccurs="0" ref="document"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-    <xs:element name="book">
+    <xs:element name="document">
         <xs:complexType>
             <xs:sequence>
                 <xs:element ref="title"/>
@@ -36,7 +36,7 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-    <xs:element name="title" type="notEmptyStringType"/>
+    <xs:element name="name" type="notEmptyStringType"/>
     <xs:element name="author" type="notEmptyStringType"/>
     <xs:element name="path" type="xs:anyURI"/>
     <xs:element name="size" type="xs:integer"/>

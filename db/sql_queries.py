@@ -170,7 +170,7 @@ TOTAL_UNIQUE_WORDS = "SELECT COUNT(DISTINCT word_id) " \
 # language=SQL
 TOTAL_LETTERS = "SELECT SUM(length) " \
                 "FROM word_appearance NATURAL JOIN word " \
-                "WHERE document_id {book_id_filter}"
+                "WHERE document_id {document_id_filter}"
 
 # language=SQL
 AVG_LETTERS_PER_WORD = "SELECT AVG(length) " \
@@ -203,6 +203,6 @@ SELECT AVG(letters_count)
 FROM 
     (SELECT SUM(length) as letters_count
     FROM word_appearance NATURAL JOIN word
-    WHERE document_id {{book_id_filter}}
+    WHERE document_id {{document_id_filter}}
     GROUP BY {count_column})
 """

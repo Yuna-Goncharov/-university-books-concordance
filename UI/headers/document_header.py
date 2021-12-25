@@ -8,7 +8,7 @@ import PySimpleGUI as sg
 import UI.UI_defaults as sgh
 from db.exceptions import NonUniqueError, CheckError
 from UI.headers.custom_header import CustomHeader
-from utils.book_parser import parse_document_file
+from utils.document_parser import parse_document_file
 from utils.constants import DATE_FORMAT
 from utils.utils import file_size_to_str
 
@@ -80,9 +80,9 @@ class DocumentHeader(CustomHeader):
         return row
 
     def _create_documents_explorer_frame(self):
-        self.books_table = sg.Table(
+        self.documents_table = sg.Table(
             values=[],
-            headings=["Book ID", "Name", "Author", "Doc Path", "Created Date"],
+            headings=["Document ID", "Name", "Author", "Doc Path", "Created Date"],
             num_rows=13,
             justification=sg.TEXT_LOCATION_LEFT,
             col_widths=[0, 30, 20, 40, 13],
@@ -100,7 +100,7 @@ class DocumentHeader(CustomHeader):
                 [sg.Sizer(v_pixels=20)],
                 self._create_documents_filter_row(),
                 [sg.Sizer(v_pixels=10)],
-                [self.books_table],
+                [self.documents_table],
                 [sg.Sizer(v_pixels=70, h_pixels=1000), open_document_button],
                 [sg.Sizer(v_pixels=30)]
             ],
@@ -110,14 +110,14 @@ class DocumentHeader(CustomHeader):
         return frame
 
     def initialize(self):
-        self._update_books_filter()
+        self._update_documents_filter()
 
     def reload(self):
-        self._clear_book_insert_frame()
+        self._clear_document_insert_frame()
 
         for _filter_name, element in self.str_filters:
             element.update("")
-        self._update_books_filter()
+        self._update_documents_filter()
 
         self._update_documents_table()
 
@@ -125,10 +125,10 @@ class DocumentHeader(CustomHeader):
     def callbacks(self):
         return {
             DocumentHeader.EventKeys.FILE_INPUT: self._load_file_input,
-            DocumentHeader.EventKeys.INSERT_DOCUMENT: self._insert_book,
-            DocumentHeader.EventKeys.UPDATE_FILTER: self._update_books_filter,
-            DocumentHeader.EventKeys.DOCUMENTS_TABLE: self._select_book,
-            DocumentHeader.EventKeys.OPEN_DOCUMENT: self._open_book_file
+            DocumentHeader.EventKeys.INSERT_DOCUMENT: self._insert_document,
+            DocumentHeader.EventKeys.UPDATE_FILTER: self._update_documents_filter,
+            DocumentHeader.EventKeys.DOCUMENTS_TABLE: self._select_documents,
+            DocumentHeader.EventKeys.OPEN_DOCUMENT: self._open_document_file
         }
 
     def _load_file_input(self):
@@ -136,7 +136,6 @@ class DocumentHeader(CustomHeader):
         path = self.file_input.get()
         document_name = splitext(split(path)[-1])[0].replace('_', ' ').title()
 
-        # Parse the book file
         try:
             name, author, date, size = parse_document_file(path)
             size_str = file_size_to_str(size)
@@ -149,7 +148,6 @@ class DocumentHeader(CustomHeader):
             author = None
             date = None
 
-        # Update the different inputs
         if date:
             self.date_input.update(datetime.fromtimestamp(date).strftime(DATE_FORMAT))
 
@@ -157,16 +155,14 @@ class DocumentHeader(CustomHeader):
         self.author_input.update(author)
         self.error_text.update("")
 
-    def _clear_book_insert_frame(self):
-        """ Clear the insertion frame inputs """
+    def _clear_document_insert_frame(self):
         self.file_input.update("")
         self.name_input.update("")
         self.author_input.update("")
         self.date_input.update("")
         self.error_text.update("")
 
-    def _insert_book(self):
-        """ Insert the book to the database """
+    def _insert_document(self):
         error_msg = ""
         try:
             date = datetime.strptime(self.date_input.get(), DATE_FORMAT)
@@ -175,56 +171,51 @@ class DocumentHeader(CustomHeader):
                                  self.file_input.get(),
                                  date)
             self._update_documents_table()
-            self._clear_book_insert_frame()
+            self._clear_document_insert_frame()
         except FileNotFoundError:
             error_msg = "Failed to open the file."
         except ValueError:
             error_msg = "Bad date format."
         except NonUniqueError:
-            error_msg = "Book already exists."
+            error_msg = "Documents already exists."
         except CheckError:
             error_msg = "Illegal input."
 
         self.error_text.update(error_msg)
 
-    def _update_books_filter(self):
-        """ Update the dynamic filters for the books list"""
+    def _update_documents_filter(self):
         for filter_name, element in self.str_filters:
             letters_filter = element.get()
             if letters_filter:
-                letters_filter = letters_filter.replace("\"", "\"\"")  # Escape all '"'
-                letters_filter = letters_filter.replace("\\", "\\\\")  # Escape all '\'
-                letters_filter = letters_filter.replace("%", "\\%")  # Escape all '%'
-                letters_filter = letters_filter.replace("_", "\\_")  # Escape all '_'
+                letters_filter = letters_filter.replace("\"", "\"\"")
+                letters_filter = letters_filter.replace("\\", "\\\\")
+                letters_filter = letters_filter.replace("%", "\\%")
+                letters_filter = letters_filter.replace("_", "\\_")
                 self.filters[filter_name] = f"%{letters_filter}%"
             else:
                 self.filters[filter_name] = None
 
         self._update_documents_table()
 
-    def _get_books_filter_tables(self):
-        """ Return the additional tables needed for the current filters"""
+    def _get_documents_filter_tables(self):
         filter_tables = []
         if self.filters["value"]:
             filter_tables += ["word", "word_appearance"]
         return filter_tables
 
     def _update_documents_table(self):
-        """ Update the books list shown """
-        books = self.db.search_documents(tables=self._get_books_filter_tables(), **self.filters)
-        self.books_table.update(values=[book[:5] + (file_size_to_str(book[5]),) for book in books])
+        documents = self.db.search_documents(tables=self._get_documents_filter_tables(), **self.filters)
+        self.documents_table.update(values=[document[:5] + (file_size_to_str(document[5]),) for document in documents])
 
-    def _select_book(self):
-        """ Select a book from the books list """
-        if self.books_table.SelectedRows:
-            selected_book_row = self.books_table.SelectedRows[0]
-            if selected_book_row < len(self.books_table.Values):
-                self.selected_document_id = self.books_table.Values[selected_book_row][0]
+    def _select_documents(self):
+        if self.documents_table.SelectedRows:
+            selected_documents_row = self.documents_table.SelectedRows[0]
+            if selected_documents_row < len(self.documents_table.Values):
+                self.selected_document_id = self.documents_table.Values[selected_documents_row][0]
 
-    def _open_book_file(self):
-        """ Open the selected book with the default editing program """
-        if self.books_table.SelectedRows:
-            selected_book_row = self.books_table.SelectedRows[0]
-            if selected_book_row < len(self.books_table.Values):
-                selected_book_path = self.books_table.Values[selected_book_row][3]
-                Popen(f'"{selected_book_path}"', shell=True)
+    def _open_document_file(self):
+        if self.documents_table.SelectedRows:
+            selected_document_row = self.documents_table.SelectedRows[0]
+            if selected_document_row < len(self.documents_table.Values):
+                selected_document_path = self.documents_table.Values[selected_document_row][3]
+                Popen(f'"{selected_document_path}"', shell=True)

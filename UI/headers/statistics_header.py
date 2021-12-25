@@ -7,7 +7,7 @@ import UI.UI_defaults as sgh
 from UI.headers.custom_header import CustomHeader
 from utils.utils import float_to_str, file_size_to_str
 
-ALL_BOOKS_FILTER = "> 0"
+ALL_DOCUMENTS_FILTER = "> 0"
 
 
 class StatisticsHeader(CustomHeader):

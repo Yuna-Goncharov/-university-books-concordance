@@ -6,7 +6,7 @@ import db.sql_queries as queries
 from db.db_manager import Database
 from db.exceptions import CheckError
 from db.query_builder import build_query
-from utils.book_parser import parse_document
+from utils.document_parser import parse_document
 from utils.constants import VALID_WORD_REGEX, DATE_FORMAT
 
 
