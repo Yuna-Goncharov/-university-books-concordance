@@ -3,7 +3,7 @@ from enum import Enum, auto
 import PySimpleGUI as sg
 
 import UI.UI_defaults as sgh
-from db.exceptions import NonUniqueError, CheckError
+from BL.exceptions import NonUniqueError, CheckError
 from UI.headers.custom_header import CustomHeader
 
 INVALID_GROUP_NAMES = ["none", "all"]

@@ -5,10 +5,10 @@ from sqlite3 import OperationalError
 import PySimpleGUI as sg
 
 import UI.UI_defaults as sgh
-from db.Documents_db import DocumentDatabase
-from db.exceptions import IntegrityError
-from db.xml.export_db import export_db
-from db.xml.import_db import import_db
+from BL.Documents_db import DocumentDatabase
+from BL.exceptions import IntegrityError
+from BL.xml.export_db import export_db
+from BL.xml.import_db import import_db
 from UI.UI_defaults import WINDOW_SIZE
 from UI.headers.document_header import DocumentHeader
 from UI.headers.custom_header import CustomHeader
@@ -116,7 +116,7 @@ class DocumentsUi:
             message=None,
             no_window=True,
             save_as=True,
-            file_types=(("Database", "*.db"), ("ALL Files", "*.*"))
+            file_types=(("Database", "*.BL"), ("ALL Files", "*.*"))
         )
 
         if path:
@@ -132,7 +132,7 @@ class DocumentsUi:
             path = sg.PopupGetFile(
                 message=None,
                 no_window=True,
-                file_types=(("Database", "*.db"), ("ALL Files", "*.*"))
+                file_types=(("Database", "*.BL"), ("ALL Files", "*.*"))
             )
 
             if path:

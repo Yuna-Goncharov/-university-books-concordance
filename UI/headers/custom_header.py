@@ -1,7 +1,7 @@
 import PySimpleGUI as sg
 
 import UI.UI_defaults as sgh
-from db.Documents_db import DocumentDatabase
+from BL.Documents_db import DocumentDatabase
 
 
 class CustomHeader(sg.Tab):

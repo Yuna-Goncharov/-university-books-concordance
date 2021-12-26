@@ -2,8 +2,8 @@
 from xml.dom import minidom
 from xml.etree.ElementTree import ElementTree, Element, Comment, SubElement, tostring
 
-from db.Documents_db import DocumentDatabase
-from utils.constants import XML_DATE_FORMAT
+from BL.Documents_db import DocumentDatabase
+from Helpers.constants import XML_DATE_FORMAT
 
 
 def prettify(elem):

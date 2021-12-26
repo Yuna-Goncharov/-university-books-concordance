@@ -5,10 +5,10 @@ from xml.etree.ElementTree import ElementTree, Element
 
 from lxml import etree
 
-from db.Documents_db import DocumentDatabase
-from utils.constants import XML_DATE_FORMAT
+from BL.Documents_db import DocumentDatabase
+from Helpers.constants import XML_DATE_FORMAT
 
-SCHEMA_FILENAME = r"db\xml\schema.xsd"
+SCHEMA_FILENAME = r"BL\xml\schema.xsd"
 
 g_parser = None
 
@@ -75,7 +75,7 @@ def init_groups(db, groups_root):  # type: (DocumentDatabase, Element) -> None
 
     # Iterate over each group element
     for group in groups_root:
-        # Insert the group the the db
+        # Insert the group the the BL
         group_id = db.insert_words_group(group.find("name").text)
         # Insert all of the wordrefs as word ids
         db.insert_many_word_ids_to_group(group_id, (int(wordref.text) for wordref in group.iter("wordref")))

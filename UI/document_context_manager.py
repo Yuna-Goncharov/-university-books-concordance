@@ -1,7 +1,7 @@
 from tkinter.scrolledtext import ScrolledText
 
 from UI import UI_defaults as sgh
-from utils.utils import cached_read
+from Helpers.utils import cached_read
 
 
 class DocumentPreview:

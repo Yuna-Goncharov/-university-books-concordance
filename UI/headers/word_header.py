@@ -4,7 +4,7 @@ from threading import Timer
 import PySimpleGUI as sg
 
 import UI.UI_defaults as sgh
-from db.Documents_db import DocumentDatabase
+from BL.Documents_db import DocumentDatabase
 from UI.document_context_manager import DocumentPreview
 from UI.headers.custom_header import CustomHeader
 

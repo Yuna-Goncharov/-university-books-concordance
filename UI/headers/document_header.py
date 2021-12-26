@@ -6,11 +6,11 @@ from subprocess import Popen
 import PySimpleGUI as sg
 
 import UI.UI_defaults as sgh
-from db.exceptions import NonUniqueError, CheckError
+from BL.exceptions import NonUniqueError, CheckError
 from UI.headers.custom_header import CustomHeader
-from utils.document_parser import parse_document_file
-from utils.constants import DATE_FORMAT
-from utils.utils import file_size_to_str
+from Helpers.document_parser import parse_document_file
+from Helpers.constants import DATE_FORMAT
+from Helpers.utils import file_size_to_str
 
 
 class DocumentHeader(CustomHeader):

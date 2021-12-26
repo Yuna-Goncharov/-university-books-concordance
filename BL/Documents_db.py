@@ -2,12 +2,12 @@ import functools
 import os
 import re
 
-import db.sql_queries as queries
-from db.db_manager import Database
-from db.exceptions import CheckError
-from db.query_builder import build_query
-from utils.document_parser import parse_document
-from utils.constants import VALID_WORD_REGEX, DATE_FORMAT
+import BL.sql_queries as queries
+from BL.db_manager import Database
+from BL.exceptions import CheckError
+from BL.query_builder import build_query
+from Helpers.document_parser import parse_document
+from Helpers.constants import VALID_WORD_REGEX, DATE_FORMAT
 
 
 class DocumentDatabase(Database):

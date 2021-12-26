@@ -2,10 +2,10 @@ from enum import Enum, auto
 
 import PySimpleGUI as sg
 
-import db.sql_queries as queries
+import BL.sql_queries as queries
 import UI.UI_defaults as sgh
 from UI.headers.custom_header import CustomHeader
-from utils.utils import float_to_str, file_size_to_str
+from Helpers.utils import float_to_str, file_size_to_str
 
 ALL_DOCUMENTS_FILTER = "> 0"
 
