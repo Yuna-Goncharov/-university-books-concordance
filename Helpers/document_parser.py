@@ -2,8 +2,8 @@ import itertools
 import os
 import re
 
-from utils.constants import VALID_WORD_REGEX
-from utils.utils import cached_read
+from Helpers.constants import VALID_WORD_REGEX
+from Helpers.utils import cached_read
 
 AUTHOR_REGEX = r"Author: (.+)$"
 TITLE_REGEX = r"Title: (.+)$"
