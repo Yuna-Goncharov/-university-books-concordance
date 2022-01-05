@@ -1,7 +1,5 @@
 # Documents Database
-SQL Project for Open University, written in python3 by: 
-Yona Goncharov Bouju and Dor Hayun
-
+SQL Project for Open University, written in python3 
 A University project in which we had to take txt book files from Gutenberg and then parse and index the words in each book.
 
 
